@@ -1,0 +1,1789 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="dark">
+<script>
+/* dark is the default; light only when the viewer picked it with the header button */
+try { if (localStorage.getItem("ge-theme") === "light") document.documentElement.dataset.theme = "light"; } catch (e) {}
+</script>
+<meta name="description" content="Function-by-function progress of the GoldenEye: Rogue Agent GameCube decompilation (GOYE69): which functions match the original, which are equivalent, which are not started.">
+<title>Rogue Agent Progress Index</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Crect width='16' height='16' rx='3' fill='%230f1117'/%3E%3Crect x='3' y='3' width='4' height='10' rx='1' fill='%233fb950'/%3E%3Crect x='9' y='3' width='4' height='6' rx='1' fill='%23d29922'/%3E%3C/svg%3E">
+<style>
+:root {
+  --bg: #0f1117;
+  --panel: #151821;
+  --panel2: #1b1f2b;
+  --line: #222632;
+  --line2: #2f3442;
+  --text: #9aa3b2;
+  --dim: #5f6776;
+  --bright: #f0f3f8;
+  --accent: #58a6ff;
+  --link: #6cb0ff;
+  --bar: rgba(88, 166, 255, 0.16);
+  --m: #3fb950;
+  --e: #39c5cf;
+  --n: #d29922;
+  --s: #484f58;
+  --chip-fg: #0f1117;
+  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
+  --font-title: "Space Grotesk", "Inter", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  color-scheme: dark;
+}
+
+:root[data-theme="light"] {
+  color-scheme: light;
+  --bg: #f6f8fa;
+  --panel: #ffffff;
+  --panel2: #eaeef2;
+  --line: #d8dee4;
+  --line2: #c3cad2;
+  --text: #57606a;
+  --dim: #656d76;
+  --bright: #1f2328;
+  --accent: #0969da;
+  --link: #0969da;
+  --bar: rgba(9, 105, 218, 0.12);
+  --m: #1a7f37;
+  --e: #077983;
+  --n: #9a6700;
+  --s: #8c959f;
+  --chip-fg: #ffffff;
+}
+
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+html { background: var(--bg); }
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font: 13px/1.5 var(--font-mono);
+  -webkit-text-size-adjust: 100%;
+}
+a { color: var(--link); text-decoration: none; }
+a:hover { text-decoration: underline; }
+button { font: inherit; color: inherit; }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; border-radius: 3px; }
+.lbl {
+  font-size: 10.5px;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--dim);
+}
+.linkbtn {
+  background: none;
+  border: 0;
+  padding: 0;
+  cursor: pointer;
+  color: var(--link);
+}
+.linkbtn:hover { text-decoration: underline; }
+.linkbtn:disabled { opacity: 0.4; cursor: default; text-decoration: none; }
+.vh {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  border: 0;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+.sq {
+  display: inline-block;
+  width: 9px;
+  height: 9px;
+  flex: 0 0 9px;
+  border-radius: 2px;
+  position: relative;
+}
+
+/* header */
+#top { border-bottom: 1px solid var(--line); }
+.wrap { max-width: 1440px; margin: 0 auto; padding: 0 24px; }
+#top .wrap { padding-top: 26px; padding-bottom: 14px; }
+.hrow { display: flex; justify-content: space-between; align-items: flex-end; gap: 12px 32px; flex-wrap: wrap; }
+.topline { display: flex; justify-content: space-between; align-items: center; gap: 12px; }
+#theme { font-size: 11px; letter-spacing: 0.08em; color: var(--dim); }
+#theme:hover { color: var(--link); }
+.eyebrow { font-size: 11px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--dim); }
+h1 {
+  margin: 6px 0 0;
+  font: 700 34px/1.1 var(--font-title);
+  letter-spacing: -0.01em;
+  color: var(--bright);
+}
+.hr { display: flex; flex-direction: column; align-items: flex-end; gap: 3px; font-size: 12px; text-align: right; }
+#h-main { color: var(--bright); font-size: 15px; background: none; border: 0; padding: 0; cursor: pointer; text-align: inherit; }
+#h-main .swap { margin-left: 8px; font-size: 11px; color: var(--dim); white-space: nowrap; }
+#h-main:hover .swap { color: var(--link); }
+#h-counts { display: flex; flex-wrap: wrap; gap: 4px 14px; justify-content: flex-end; }
+.hc { display: inline-flex; align-items: center; gap: 6px; }
+#h-bar { margin-top: 14px; height: 8px; }
+
+/* layout */
+#msg { max-width: 1440px; margin: 0 auto; padding: 32px 24px; color: var(--text); }
+#msg.err { color: var(--n); }
+#app {
+  max-width: 1440px;
+  margin: 0 auto;
+  padding: 0 24px;
+  display: grid;
+  grid-template-columns: 300px minmax(0, 1fr);
+  gap: 0 28px;
+  align-items: start;
+}
+
+/* sidebar */
+#side {
+  position: sticky;
+  top: 0;
+  max-height: 100vh;
+  overflow-y: auto;
+  padding: 16px 6px 24px 0;
+  scrollbar-width: thin;
+}
+.searchbox { position: relative; }
+#q {
+  width: 100%;
+  background: var(--panel);
+  color: var(--bright);
+  border: 1px solid var(--line2);
+  border-radius: 6px;
+  padding: 7px 34px 7px 10px;
+  font: inherit;
+}
+#q::placeholder { color: var(--dim); }
+#q:focus { outline: 2px solid var(--accent); outline-offset: 0; border-color: transparent; }
+.kbd {
+  position: absolute;
+  right: 8px;
+  top: 7px;
+  border: 1px solid var(--line2);
+  border-radius: 4px;
+  padding: 0 5px;
+  font-size: 11px;
+  color: var(--dim);
+  pointer-events: none;
+}
+.hint { margin: 5px 0 0; font-size: 11px; color: var(--dim); }
+#fbtn { display: none; width: 100%; margin-top: 10px; padding: 7px 10px; background: var(--panel); border: 1px solid var(--line2); border-radius: 6px; cursor: pointer; text-align: left; }
+.facet { margin-top: 18px; }
+.fh { display: flex; justify-content: space-between; align-items: baseline; padding: 0 6px 5px; margin-bottom: 4px; border-bottom: 1px solid var(--line); }
+.fct {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  padding: 3px 6px;
+  background: none;
+  border: 0;
+  border-radius: 4px;
+  text-align: left;
+  cursor: pointer;
+  overflow: hidden;
+}
+.fct:hover { background: var(--panel); }
+.fct.on { color: var(--bright); background: var(--panel2); box-shadow: inset 2px 0 0 var(--accent); }
+.fct.zero { opacity: 0.45; }
+.fct .fl { position: relative; flex: 1 1 auto; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.fct .fc { position: relative; color: var(--dim); font-variant-numeric: tabular-nums; }
+.fct.on .fc { color: var(--text); }
+.cbar { position: absolute; left: 0; top: 0; bottom: 0; width: 0; background: var(--bar); pointer-events: none; }
+.chips { display: flex; flex-wrap: wrap; gap: 4px; }
+.fct.pill { width: auto; border: 1px solid var(--line2); border-radius: 999px; padding: 2px 9px; }
+.fct.pill.on { box-shadow: none; border-color: var(--accent); }
+.fct.pill .fc { margin-left: 2px; }
+.dirlist { max-height: 270px; overflow-y: auto; scrollbar-width: thin; }
+.alllink { background: none; border: 0; padding: 0; cursor: pointer; color: var(--link); font-size: 11px; }
+.alllink:hover { text-decoration: underline; }
+.reset { margin-top: 18px; }
+
+/* toolbar */
+#main { padding: 16px 0 0; min-width: 0; }
+.toolbar { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 22px; padding-bottom: 10px; border-bottom: 1px solid var(--line); }
+#count { color: var(--bright); flex: 1 1 100%; font-size: 13px; }
+#count .sub { color: var(--dim); }
+.tb { display: flex; align-items: center; flex-wrap: wrap; gap: 6px; }
+.seg { display: flex; flex-wrap: wrap; gap: 4px; }
+.sb {
+  background: none;
+  border: 1px solid var(--line2);
+  border-radius: 999px;
+  padding: 1px 10px;
+  cursor: pointer;
+  color: var(--text);
+}
+.sb:hover { color: var(--bright); border-color: var(--dim); }
+.sb.on { color: var(--bright); background: var(--panel2); border-color: var(--accent); }
+.sb:disabled { opacity: 0.4; cursor: default; }
+.sep { color: var(--dim); }
+
+/* file rows */
+.file { border-bottom: 1px solid var(--line); }
+.frow { display: flex; align-items: center; gap: 10px; padding: 5px 8px; min-height: 31px; cursor: pointer; }
+.frow:hover { background: var(--panel); }
+.fname {
+  flex: 1 1 auto;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: none;
+  border: 0;
+  padding: 0;
+  text-align: left;
+  cursor: pointer;
+}
+.caret { width: 10px; flex: 0 0 10px; color: var(--dim); font-size: 11px; }
+.path { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.dir { color: var(--dim); }
+.base { color: var(--bright); }
+.unitb { color: var(--text); }
+.rchips { display: flex; align-items: center; gap: 5px; flex: 0 0 auto; }
+.pchip {
+  display: inline-block;
+  border: 1px solid var(--line2);
+  border-radius: 999px;
+  padding: 0 7px;
+  font-size: 11px;
+  line-height: 17px;
+  white-space: nowrap;
+  color: var(--text);
+}
+.pchip.linked { color: var(--m); border-color: var(--m); }
+.pchip.equiv { color: var(--e); border-color: var(--e); }
+.pchip.guess, .tag.guess { border-style: dashed; }
+a.pchip { color: var(--bright); }
+a.pchip:hover { text-decoration: none; border-color: var(--accent); }
+.bar { display: flex; flex: 0 0 140px; height: 10px; border-radius: 3px; overflow: hidden; background: var(--line); }
+.bar i { display: block; height: 100%; min-width: 2px; flex-shrink: 1; }
+#h-bar.bar { flex: none; width: 100%; border-radius: 4px; }
+.num { flex: 0 0 104px; text-align: right; color: var(--bright); font-variant-numeric: tabular-nums; white-space: nowrap; }
+.num.zero { color: var(--dim); }
+.num .left { font-size: 11px; color: var(--dim); }
+.file.open > .frow { background: var(--panel); }
+.file.open .caret { color: var(--bright); }
+
+/* expanded body */
+.fbody { padding: 4px 8px 12px 30px; background: var(--panel); border-top: 1px solid var(--line); }
+.finfo { display: grid; grid-template-columns: 96px minmax(0, 1fr); gap: 2px 12px; padding: 6px 0 8px; font-size: 12px; }
+.finfo .lbl { padding-top: 2px; }
+.iline { overflow-wrap: anywhere; }
+.istate { margin-left: 6px; font-size: 10.5px; color: var(--dim); }
+.il.open { color: var(--bright); }
+.il.closed { color: var(--dim); text-decoration: line-through; }
+.fn { display: grid; grid-template-columns: 22px minmax(0, 1fr) auto; gap: 0 10px; padding: 3px 4px; border-top: 1px solid var(--line); align-items: start; }
+.fn:hover { background: var(--panel2); }
+.chip {
+  position: relative;
+  display: inline-block;
+  width: 20px;
+  text-align: center;
+  border-radius: 4px;
+  font-size: 11px;
+  font-weight: 600;
+  line-height: 18px;
+  color: var(--chip-fg);
+}
+.c-m { background: var(--m); }
+.c-e { background: var(--e); }
+.c-n { background: var(--n); }
+.c-s { background: var(--s); color: var(--bright); }
+.nmline { display: flex; align-items: center; gap: 6px; min-width: 0; }
+.nm {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  background: none;
+  border: 0;
+  padding: 0;
+  text-align: left;
+  color: var(--bright);
+  cursor: copy;
+}
+.nm:hover { text-decoration: underline; }
+.tag { flex: 0 0 auto; border: 1px solid var(--line2); border-radius: 999px; padding: 0 6px; font-size: 10.5px; color: var(--dim); }
+.dot { flex: 0 0 7px; width: 7px; height: 7px; border-radius: 50%; background: var(--accent); }
+.sub { display: flex; flex-wrap: wrap; gap: 0 12px; font-size: 11.5px; color: var(--dim); overflow-wrap: anywhere; }
+.nums { display: flex; gap: 10px; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.nums .addr { width: 86px; color: var(--text); }
+.nums .size { width: 72px; text-align: right; color: var(--dim); }
+.nums .score { width: 64px; text-align: right; }
+.score.full { color: var(--m); }
+.score.none { color: var(--dim); }
+.inl { margin-top: 8px; border-top: 1px solid var(--line); }
+.inlhead { background: none; border: 0; padding: 6px 4px; cursor: pointer; color: var(--text); }
+.inlhead:hover { color: var(--bright); }
+.more { display: block; width: 100%; margin: 8px 0; padding: 7px; background: none; border: 1px dashed var(--line2); border-radius: 6px; cursor: pointer; color: var(--text); }
+.more:hover { color: var(--bright); border-color: var(--dim); }
+.flat { margin-top: 4px; }
+.flat .fn { padding-left: 8px; padding-right: 8px; }
+.empty { padding: 28px 8px; color: var(--dim); }
+
+/* footer */
+footer { max-width: 1440px; margin: 40px auto 0; padding: 18px 24px 40px; border-top: 1px solid var(--line); font-size: 12px; }
+footer ul { list-style: none; margin: 8px 0 12px; padding: 0; }
+footer li { display: flex; align-items: center; gap: 8px; margin: 3px 0; }
+footer p { margin: 6px 0; max-width: 90ch; }
+#toast {
+  position: fixed;
+  left: 50%;
+  bottom: 22px;
+  transform: translateX(-50%);
+  max-width: 90vw;
+  padding: 7px 14px;
+  background: var(--bright);
+  color: var(--bg);
+  border-radius: 6px;
+  font-size: 12px;
+  overflow-wrap: anywhere;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.15s;
+}
+#toast.show { opacity: 1; }
+
+@media (max-width: 799px) {
+  .wrap, #msg, footer { padding-left: 16px; padding-right: 16px; }
+  #app { grid-template-columns: minmax(0, 1fr); padding: 0 16px; }
+  #side { position: static; max-height: none; overflow: visible; padding: 14px 0 0; }
+  #fbtn { display: block; }
+  #facets.collapsed { display: none; }
+  h1 { font-size: 26px; }
+  .hr { align-items: flex-start; text-align: left; }
+  #h-counts { justify-content: flex-start; }
+  .frow { flex-wrap: wrap; gap: 4px 10px; }
+  .fname { flex: 1 1 100%; }
+  .rchips { flex: 0 1 auto; }
+  .bar { flex: 1 1 100px; }
+  .fbody { padding-left: 10px; }
+  .finfo { grid-template-columns: minmax(0, 1fr); }
+  .fn { grid-template-columns: 22px minmax(0, 1fr); }
+  .nums { grid-column: 2; padding-bottom: 2px; }
+  .nm { white-space: normal; overflow-wrap: anywhere; }
+}
+</style>
+</head>
+<body>
+<header id="top">
+  <div class="wrap">
+    <div class="topline">
+      <div class="eyebrow" id="eyebrow">GoldenEye: Rogue Agent decompilation &middot; GOYE69</div>
+      <button class="linkbtn" id="theme" type="button" aria-pressed="false">light mode</button>
+    </div>
+    <div class="hrow">
+      <div>
+        <h1>Rogue Agent Progress Index</h1>
+      </div>
+      <div class="hr" id="hr" hidden>
+        <button id="h-main" type="button"></button>
+        <div id="h-counts"></div>
+        <div id="h-port"></div>
+        <div id="h-built"></div>
+      </div>
+    </div>
+    <div id="h-bar" class="bar" hidden></div>
+  </div>
+</header>
+
+<div id="msg" role="status">Loading data.json &hellip;</div>
+<noscript><div class="wrap" style="padding-top:24px">This page needs JavaScript to show the progress data.</div></noscript>
+
+<div id="app" hidden>
+  <aside id="side" aria-label="Filters">
+    <div class="searchbox">
+      <input id="q" type="text" placeholder="Search functions, files, addresses" autocomplete="off" spellcheck="false" aria-label="Search">
+      <span class="kbd" aria-hidden="true">/</span>
+    </div>
+    <p class="hint">name, file, 0x address or #issue; Esc clears</p>
+    <button id="fbtn" type="button" aria-expanded="false" aria-controls="facets">Filters</button>
+    <div id="facets"></div>
+  </aside>
+  <main id="main">
+    <div class="toolbar">
+      <div id="count" aria-live="polite"></div>
+      <div class="tb"><span class="lbl">Group</span><div class="seg" id="seg-by"></div><div class="seg" id="seg-view"></div></div>
+      <div class="tb"><span class="lbl">Sort</span><div class="seg" id="seg-sort"></div></div>
+      <div class="tb"><button class="linkbtn" id="expand" type="button">expand all</button><span class="sep">|</span><button class="linkbtn" id="collapse" type="button">collapse</button></div>
+    </div>
+    <div id="list"></div>
+  </main>
+</div>
+
+<footer>
+  <div class="lbl">What the statuses mean</div>
+  <ul>
+    <li><i class="sq" style="background:var(--m)"></i><span><b>Matching</b>: 100 %</span></li>
+    <li><i class="sq" style="background:var(--e)"></i><span><b>Equivalent</b>: behaves like the original, not byte-identical</span></li>
+    <li><i class="sq" style="background:var(--n)"></i><span><b>Not matching</b>: had a pass, below 100 % and not equivalent</span></li>
+    <li><i class="sq" style="background:var(--s)"></i><span><b>Not started</b>: no pass yet</span></li>
+  </ul>
+  <p><b>Inline copies</b> are functions the compiler emitted into more than one file (inline functions, templates, weak symbols); the linker keeps one copy. They are listed under the file that owns the kept copy and folded into an &ldquo;inline copies&rdquo; group.</p>
+  <p><b>Original files</b> are the source files the game's large &ldquo;unity&rdquo; files were built from. Most are named by symbols of related games built from the same code, or by the game's own file-name strings. Where nothing names a function's file it is guessed: such functions are marked &ldquo;file guessed&rdquo;, and a file that no symbol names at all is marked &ldquo;name guessed&rdquo;.</p>
+  <p id="dataonly" hidden></p>
+  <p>Only names, addresses, sizes, scores and statuses are published here, never game data. The data is generated from the objdiff report of the decompilation by <code>tools/progress_site.py</code> and refreshed at the end of every work round. <a id="docs" href="https://github.com/Colossus90/goldeneye-rogue-agent/blob/main/docs/progress-site.md" hidden>How this page is built</a></p>
+</footer>
+<div id="toast" role="status" aria-live="polite"></div>
+
+<script>
+(function () {
+'use strict';
+
+/* ---------- theme: dark by default, the button switches to light and back ---------- */
+(function () {
+  const btn = document.getElementById('theme');
+  const root = document.documentElement;
+  function show() {
+    const light = root.dataset.theme === 'light';
+    btn.textContent = light ? 'dark mode' : 'light mode';
+    btn.setAttribute('aria-pressed', String(light));
+    btn.title = light ? 'switch to the dark theme' : 'switch to the light theme';
+  }
+  btn.addEventListener('click', function () {
+    const light = root.dataset.theme !== 'light';
+    if (light) root.dataset.theme = 'light';
+    else delete root.dataset.theme;
+    try {
+      if (light) localStorage.setItem('ge-theme', 'light');
+      else localStorage.removeItem('ge-theme');
+    } catch (e) { /* private window or blocked storage: the choice lasts until the page closes */ }
+    show();
+  });
+  show();
+})();
+
+/* ---------- constants ---------- */
+const STATUSES = [
+  {code: 'M', name: 'Matching', key: 'm', letter: 'M'},
+  {code: 'E', name: 'Equivalent', key: 'e', letter: 'E'},
+  {code: 'N', name: 'Not matching', key: 'n', letter: 'N'},
+  {code: '-', name: 'Not started', key: 's', letter: '–'}
+];
+const SCODE = new Map([['M', 0], ['E', 1], ['N', 2], ['-', 3]]);
+const SIZE_LABELS = ['<64 B', '64-256 B', '256 B-1 KB', '1-4 KB', '>4 KB'];
+const SORTS = [
+  {id: 'remaining', label: 'most remaining'},
+  {id: 'path', label: 'by path'},
+  {id: 'closest', label: 'closest to done'},
+  {id: 'notstarted', label: 'largest not started'},
+  {id: 'recent', label: 'recently changed'}
+];
+const OBJ_LABELS = {
+  'Matching': 'Matching (linked from source)',
+  'Equivalent': 'Equivalent',
+  'NonMatching': 'NonMatching',
+  '': 'not listed'
+};
+const CHUNK_FLAT = 300;
+const CHUNK_GROUP = 60;
+const MAX_OPEN_IN_HASH = 20;
+const ALL = 0xffff;
+const FB = {search: 1, inline: 2, changed: 4, status: 8, cat: 16, iss: 32, obj: 64, dir: 128, size: 256};
+const NF = new Intl.NumberFormat('en-US');
+const DEFAULT_REPO = 'Colossus90/goldeneye-rogue-agent';
+
+/* ---------- state ---------- */
+let META = null, REPO = DEFAULT_REPO, COMMIT = 'main';
+let CATS = [], U = [], F = [], ISS = new Map();
+let TOT = null;            // totals over all functions: {n: [4], b: [4], fn, bytes}
+let GUESSED = new Set();  // okeys of the original files with a guessed name
+let FILESTAT = null;       // {build: Map, orig: Map} of unfiltered aggregates
+let S = null;              // UI state
+let VIS = [], VIS_BYTES = 0, CNT = null;
+let GROUPS = [];
+let FE = [];               // facet entries
+let REFRESH = [];          // toolbar refresh callbacks
+let flatIO = null;
+let openIO = null;         // opens the bodies of open groups when they come near the viewport
+let LAST_HASH = null;      // the location.hash (without #) this page last wrote or read
+let DATAONLY = [];         // units without any function
+let firstRender = true;
+let searchTimer = 0;
+let toastTimer = 0;
+const INL_OPEN = new Set();
+
+const $ = id => document.getElementById(id);
+
+/* ---------- small helpers ---------- */
+function el(tag, cls, text) {
+  const e = document.createElement(tag);
+  if (cls) e.className = cls;
+  if (text != null) e.textContent = text;
+  return e;
+}
+function fmt(n) { return NF.format(n); }
+function plural(n, word) { return fmt(n) + ' ' + word + (n === 1 ? '' : 's'); }
+function fmtBytes(n) {
+  if (n >= 10485760) return (n / 1048576).toFixed(1) + ' MB';
+  return n >= 10240 ? (n / 1024).toFixed(1) + ' KB' : fmt(n) + ' B';
+}
+function fmtW(n) { return S && S.cb === 'bytes' ? fmtBytes(n) : fmt(n); }
+function pct(n, d) { return d > 0 ? (100 * n / d).toFixed(1) + '%' : '0.0%'; }
+function hex8(a) { return '0x' + (a >>> 0).toString(16).toUpperCase().padStart(8, '0'); }
+function cmpStr(a, b) { return a < b ? -1 : (a > b ? 1 : 0); }
+function sizeBucket(s) { return s < 64 ? 0 : (s < 256 ? 1 : (s < 1024 ? 2 : (s < 4096 ? 3 : 4))); }
+function bump(map, key, w) { map.set(key, (map.get(key) || 0) + w); }
+function toggle(set, v) { if (set.has(v)) set.delete(v); else set.add(v); }
+function fieldIndex(names) {
+  const m = {};
+  (names || []).forEach((n, i) => { m[n] = i; });
+  return m;
+}
+function need(idx, names, what) {
+  for (const n of names) {
+    if (!(n in idx)) throw new Error('data.json: ' + what + ' lacks the field "' + n + '"');
+  }
+}
+function toast(msg) {
+  const t = $('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.classList.remove('show'), 1600);
+}
+function copyText(text) {
+  const done = () => toast('Copied ' + text);
+  const fallback = () => {
+    const ta = el('textarea');
+    ta.value = text;
+    ta.setAttribute('readonly', '');
+    ta.style.position = 'fixed';
+    ta.style.opacity = '0';
+    document.body.append(ta);
+    ta.select();
+    let ok = false;
+    try { ok = document.execCommand('copy'); } catch (e) { ok = false; }
+    ta.remove();
+    if (ok) done(); else toast('Copy failed');
+  };
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(text).then(done, fallback);
+  } else {
+    fallback();
+  }
+}
+/* Links into the repository are always shown (owner, 2026-10-05): while it is private they work for
+   signed-in members and answer 404 for everyone else (data.json's meta.repo_public says which). */
+function repoLinks() { return true; }
+function repoLink(path, text, cls) {
+  if (!repoLinks()) return el('span', cls, text);
+  const a = el('a', cls, text);
+  a.href = 'https://github.com/' + REPO + '/' + path;
+  a.target = '_blank';
+  a.rel = 'noopener';
+  return a;
+}
+function issueLink(n) {
+  const is = ISS.get(n);
+  const a = repoLink('issues/' + n, '#' + n, 'il ' + (is && is.state === 'closed' ? 'closed' : 'open'));
+  a.title = '#' + n + (is && is.title ? ' ' + is.title : '') + (is ? ' (' + is.state + ')' : '');
+  return a;
+}
+function appendPathLabel(c, u, orig) {
+  if (u.dir) c.append(el('span', 'dir', u.dir + '/'));
+  c.append(el('span', orig ? 'unitb' : 'base', u.base));
+  if (orig) {
+    c.append(el('span', 'dir', ' › '));
+    c.append(el('span', 'base', orig));
+  }
+}
+
+/* ---------- loading ---------- */
+/* The newest published data. On GitHub Pages (<owner>.github.io/<repo>/) the page asks the GitHub API for the
+   newest commit of the repository that serves it and reads data.json at that commit from
+   raw.githubusercontent.com, so a publish shows at once (Pages' own copy can lag by minutes). Anywhere else,
+   or when the API refuses (it allows 60 requests an hour per address without sign-in), it reads data.json
+   next to the page. DATA_SHA is the commit the shown data came from (null: read next to the page). */
+let DATA_SHA = null;
+function pagesRepo() {
+  const h = /^([a-z0-9-]+)\.github\.io$/i.exec(location.hostname);
+  if (!h) return null;
+  const seg = location.pathname.split('/').filter(Boolean)[0];
+  return h[1] + '/' + (seg && !/\.html?$/i.test(seg) ? seg : h[1] + '.github.io');
+}
+function latestSha(repo) {
+  return fetch('https://api.github.com/repos/' + repo + '/commits/HEAD',
+               {headers: {Accept: 'application/vnd.github.sha'}, cache: 'no-store'})
+    .then(r => {
+      if (!r.ok) throw new Error('GitHub API: HTTP ' + r.status);
+      return r.text();
+    })
+    .then(t => {
+      t = t.trim();
+      if (!/^[0-9a-f]{40}$/.test(t)) throw new Error('GitHub API: unexpected answer');
+      return t;
+    });
+}
+function getJSON(url, opts) {
+  return fetch(url, opts).then(r => {
+    if (!r.ok) throw new Error('HTTP ' + r.status + ' ' + r.statusText);
+    return r.json();
+  });
+}
+function fetchData() {
+  const local = () => getJSON('data.json', {cache: 'no-cache'}).then(d => ({data: d, sha: null}));
+  const repo = pagesRepo();
+  if (!repo) return local();
+  return latestSha(repo)
+    .then(sha => getJSON('https://raw.githubusercontent.com/' + repo + '/' + sha + '/data.json').then(d => ({data: d, sha: sha})))
+    .catch(e => {
+      console.warn('newest data not available, reading data.json next to the page:', e);
+      return local();
+    });
+}
+function load() {
+  fetchData()
+    .then(r => {
+      DATA_SHA = r.sha;
+      init(r.data);
+    })
+    .catch(showError);
+}
+/* The header's "refresh data" button: reload the page when newer data is published (the view is in the URL
+   fragment, so search, filters and open files stay); say so when the shown data is already the newest. */
+function refreshData(btn) {
+  const repo = pagesRepo();
+  if (!repo || !DATA_SHA) { location.reload(); return; }
+  btn.disabled = true;
+  btn.textContent = 'checking…';
+  latestSha(repo)
+    .then(sha => {
+      if (sha !== DATA_SHA) { location.reload(); return; }
+      btn.disabled = false;
+      btn.textContent = 'refresh data';
+      toast('This is the newest data');
+    })
+    .catch(e => {
+      console.warn(e);
+      location.reload();
+    });
+}
+function showError(e) {
+  console.error(e);
+  const m = $('msg');
+  m.className = 'err';
+  m.textContent = 'Could not load or show data.json: ' + (e && e.message ? e.message : String(e)) + ' ';
+  const b = el('button', 'linkbtn', 'retry');
+  b.type = 'button';
+  b.addEventListener('click', () => location.reload());
+  m.append(b);
+  m.hidden = false;
+}
+
+function init(D) {
+  if (!D || !D.meta || !Array.isArray(D.units) || !Array.isArray(D.functions)) {
+    throw new Error('unexpected structure');
+  }
+  META = D.meta;
+  REPO = META.repo || DEFAULT_REPO;
+  COMMIT = META.commit || 'main';
+  CATS = D.categories || [];
+  const ui = fieldIndex(D.unit_fields);
+  const fi = fieldIndex(D.function_fields);
+  const ii = fieldIndex(D.issue_fields);
+  need(ui, ['path', 'file', 'objects', 'category', 'complete', 'issues'], 'unit_fields');
+  need(fi, ['unit', 'name', 'demangled', 'address', 'size', 'score', 'status', 'pass', 'issues', 'orig', 'inline', 'changed', 'since'], 'function_fields');
+  need(ii, ['number', 'state', 'labels'], 'issue_fields');  // the title only when the data carries it
+
+  ISS = new Map();
+  for (const r of (D.issues || [])) {
+    const num = r[ii.number];
+    ISS.set(num, {number: num, title: (ii.title !== undefined && r[ii.title]) || '', state: r[ii.state] || 'open', labels: r[ii.labels] || []});
+  }
+
+  U = D.units.map((r, i) => {
+    const path = String(r[ui.path]);
+    const parts = path.split('/');
+    const base = parts.pop();
+    const cat = r[ui.category];
+    return {
+      i: i,
+      path: path,
+      dir: parts.join('/'),
+      base: base,
+      dir2: parts.slice(0, 2).join('/') || '(root)',
+      file: r[ui.file] || null,
+      objects: r[ui.objects] || null,
+      cat: typeof cat === 'number' ? cat : -1,
+      complete: !!r[ui.complete],
+      issues: (r[ui.issues] || []).slice(),
+      unity: false
+    };
+  });
+
+  const nf = D.functions.length;
+  F = new Array(nf);
+  for (let i = 0; i < nf; i++) {
+    const r = D.functions[i];
+    const u = U[r[fi.unit]];
+    if (!u) throw new Error('function #' + i + ' refers to the unknown unit ' + r[fi.unit]);
+    let sc = SCODE.get(r[fi.status]);
+    if (sc === undefined) sc = 3;
+    const name = String(r[fi.name]);
+    const dem = r[fi.demangled] || null;
+    const addr = r[fi.address] || 0;
+    const size = r[fi.size] | 0;
+    const score = r[fi.score];
+    const own = (r[fi.issues] || []).slice();
+    const all = new Set(own);
+    for (const n of u.issues) all.add(n);
+    const allArr = Array.from(all).sort((a, b) => a - b);
+    let hasOpen = false;
+    const lbls = new Set();
+    for (const n of allArr) {
+      const is = ISS.get(n);
+      if (!is) continue;
+      if (is.state === 'open') hasOpen = true;
+      for (const l of is.labels) lbls.add(l);
+    }
+    const orig = r[fi.orig] || null;
+    if (orig) u.unity = true;
+    const oguess = orig && fi.orig_guess !== undefined && r[fi.orig_guess] ? 1 : 0;
+    F[i] = {
+      i: i, u: u, name: name, dem: dem, addr: addr, size: size,
+      score: score == null ? null : score,
+      sc: sc, pass: r[fi.pass] || '',
+      own: own, all: allArr, hasOpen: hasOpen, hasAny: allArr.length > 0, lbls: Array.from(lbls),
+      orig: orig, oguess: oguess, inline: r[fi.inline] ? 1 : 0, changed: r[fi.changed] ? 1 : 0, since: r[fi.since] || '',
+      cat: u.cat, obj: u.objects || '', dir: u.dir2, sb: sizeBucket(size),
+      bkey: u.path, okey: u.path, oname: null,
+      hay: ''
+    };
+    F[i].hay = (u.path + ' ' + (orig || '') + ' ' + name + ' ' + (dem || '') + ' ' + hex8(addr) + ' ' +
+      (u.file || '') + ' #' + allArr.join(' #') + ' ').toLowerCase();
+    if (allArr.length === 0) F[i].hay = F[i].hay.replace(/ # $/, ' ');
+  }
+  // the original files whose name no symbol gives: our guesses (unity_guess.tsv)
+  GUESSED = new Set();
+  for (const r of (D.guessed_files || [])) if (U[r[0]]) GUESSED.add(U[r[0]].path + '::' + r[1]);
+  // original-file keys need to know which units are unity units
+  for (const f of F) {
+    if (f.u.unity) {
+      f.oname = f.orig || '(unknown file)';
+      f.okey = f.u.path + '::' + f.oname;
+    }
+  }
+
+  // totals and unfiltered per-file aggregates
+  TOT = {n: [0, 0, 0, 0], b: [0, 0, 0, 0], fn: F.length, bytes: 0};
+  FILESTAT = {build: new Map(), orig: new Map()};
+  for (const f of F) {
+    TOT.n[f.sc]++;
+    TOT.b[f.sc] += f.size;
+    TOT.bytes += f.size;
+    addAgg(FILESTAT.build, f.bkey, f);
+    addAgg(FILESTAT.orig, f.okey, f);
+  }
+
+  const withCode = new Set();
+  for (const f of F) withCode.add(f.u.i);
+  DATAONLY = U.filter(u => !withCode.has(u.i));
+
+  renderHeader();
+  renderDataOnly();
+  buildSidebar();
+  buildToolbar();
+  S = parseHash();
+  syncInputs();
+  $('msg').hidden = true;
+  $('hr').hidden = false;
+  $('h-bar').hidden = false;
+  $('app').hidden = false;
+  update('replace');
+  // Back and Forward step through the states that syncHash pushed; so does an edited hash
+  const onLocation = () => {
+    if (location.hash.replace(/^#/, '') === LAST_HASH) return;   // our own change, or the second of two events
+    S = parseHash();
+    syncInputs();
+    update('none');
+  };
+  window.addEventListener('hashchange', onLocation);
+  window.addEventListener('popstate', onLocation);
+}
+
+/* units that hold only data (no functions) never appear as file rows: their open issues are listed in the footer */
+function renderDataOnly() {
+  const box = $('dataonly');
+  box.replaceChildren();
+  const rows = DATAONLY.filter(u => u.issues.some(n => { const is = ISS.get(n); return !is || is.state === 'open'; }));
+  if (!rows.length) { box.hidden = true; return; }
+  box.append(el('b', null, 'Units with only data (no functions) and open issues: '));
+  rows.forEach((u, i) => {
+    if (i) box.append(document.createTextNode(', '));
+    box.append(document.createTextNode(u.path));
+    for (const n of u.issues) {
+      const is = ISS.get(n);
+      if (is && is.state !== 'open') continue;
+      box.append(document.createTextNode(' '), issueLink(n));
+    }
+  });
+  box.hidden = false;
+}
+
+function addAgg(map, key, f) {
+  let a = map.get(key);
+  if (!a) { a = {n: [0, 0, 0, 0], any: false}; map.set(key, a); }
+  a.n[f.sc]++;
+  if (f.pass || f.sc < 3) a.any = true;
+}
+function fileStatus(a) {
+  if (!a) return 3;
+  const t = a.n[0] + a.n[1] + a.n[2] + a.n[3];
+  if (t > 0 && a.n[0] === t) return 0;
+  if (t > 0 && a.n[0] + a.n[1] === t) return 1;
+  return a.any ? 2 : 3;
+}
+
+/* ---------- header ---------- */
+function stackedBar(bar, counts, tip) {
+  bar.replaceChildren();
+  let tot = 0;
+  for (let c = 0; c < 4; c++) tot += counts[c];
+  for (let c = 0; c < 4; c++) {
+    if (!counts[c] || !tot) continue;
+    const s = el('i');
+    s.style.width = (100 * counts[c] / tot) + '%';
+    s.style.background = 'var(--' + STATUSES[c].key + ')';
+    bar.append(s);
+  }
+  if (tip) {
+    bar.title = tip;
+    bar.setAttribute('role', 'img');
+    bar.setAttribute('aria-label', tip.replace(/\n/g, '; '));
+  }
+}
+function statusTip(n, b) {
+  const lines = [];
+  for (let c = 0; c < 4; c++) lines.push(STATUSES[c].name + ': ' + fmt(n[c]) + ' functions, ' + fmt(b[c]) + ' B');
+  return lines.join('\n');
+}
+/* The headline, the status counts under it and the header bar show code bytes (the default) or
+   functions; clicking the headline switches, and the choice is kept like the theme. */
+let HEADLINE = 'code';
+try { if (localStorage.getItem('ge-headline') === 'functions') HEADLINE = 'functions'; } catch (e) { /* no storage */ }
+
+function renderHeadline() {
+  const rt = META.report_totals || {};
+  const code = HEADLINE === 'code';
+  const hm = $('h-main');
+  let m, t;
+  if (code) {
+    t = rt.total_code != null ? rt.total_code : TOT.bytes;
+    m = rt.matched_code != null ? rt.matched_code : TOT.b[0];
+    hm.textContent = fmtBytes(m) + ' of ' + fmtBytes(t) + ' code matched (' + pct(m, t) + ')';
+  } else {
+    t = rt.total_functions != null ? rt.total_functions : TOT.fn;
+    m = rt.matched_functions != null ? rt.matched_functions : TOT.n[0];
+    hm.textContent = fmt(m) + ' of ' + fmt(t) + ' functions matched (' + pct(m, t) + ')';
+  }
+  hm.append(el('span', 'swap', '⇄ ' + (code ? 'functions' : 'code')));
+  hm.title = 'show ' + (code ? 'functions matched' : 'code matched') + ' instead';
+  hm.onclick = function () {
+    HEADLINE = code ? 'functions' : 'code';
+    try {
+      if (HEADLINE === 'functions') localStorage.setItem('ge-headline', 'functions');
+      else localStorage.removeItem('ge-headline');
+    } catch (e) { /* the choice lasts until the page closes */ }
+    renderHeadline();
+  };
+
+  const cl = $('h-counts');
+  cl.replaceChildren();
+  for (const c of [1, 2, 3]) {
+    const s = el('span', 'hc');
+    const q = el('i', 'sq');
+    q.style.background = 'var(--' + STATUSES[c].key + ')';
+    s.append(q, document.createTextNode(STATUSES[c].name + ' ' + (code ? fmtBytes(TOT.b[c]) : fmt(TOT.n[c]))));
+    cl.append(s);
+  }
+  stackedBar($('h-bar'), code ? TOT.b : TOT.n, statusTip(TOT.n, TOT.b));
+}
+
+function renderHeader() {
+  if (META.version) $('eyebrow').textContent = 'GoldenEye: Rogue Agent decompilation · ' + META.version;
+  renderHeadline();
+
+  const pf = TOT.n[0] + TOT.n[1];
+  const pb = TOT.b[0] + TOT.b[1];
+  const port = $('h-port');
+  port.textContent = 'port-ready: ' + pct(pf, TOT.fn) + ' of functions · ' + pct(pb, TOT.bytes) + ' of code';
+  port.title = 'share of functions and code bytes that are Matching or Equivalent';
+
+  const built = $('h-built');
+  built.replaceChildren();
+  const gen = META.generated || '';
+  const when = el('span', null, 'rebuilt ' + (gen.slice(0, 10) || 'unknown'));
+  if (gen) when.title = gen;
+  built.append(when);
+  if (META.commit) {
+    built.append(document.createTextNode(' at '));
+    built.append(repoLink('commit/' + META.commit, META.commit.slice(0, 7)));
+  }
+  built.append(document.createTextNode(' · '));
+  const dj = el('a', null, 'data.json');
+  dj.href = 'data.json';
+  built.append(dj, document.createTextNode(' · '));
+  const tsv = el('button', 'linkbtn', 'TSV');
+  tsv.type = 'button';
+  tsv.title = 'download one row per function as a TSV file';
+  tsv.addEventListener('click', downloadTSV);
+  built.append(tsv, document.createTextNode(' · '));
+  const rf = el('button', 'linkbtn', 'refresh data');
+  rf.type = 'button';
+  rf.title = 'load the newest published data (search, filters and open files stay)';
+  rf.addEventListener('click', () => refreshData(rf));
+  built.append(rf);
+
+  $('docs').href = 'https://github.com/' + REPO + '/blob/main/docs/progress-site.md';
+  $('docs').hidden = !repoLinks();
+}
+
+function downloadTSV() {
+  const clean = v => String(v == null ? '' : v).replace(/[\t\r\n]+/g, ' ');
+  const rows = ['unit\toriginal file\tfile guessed\tmangled name\tdemangled name\taddress\tsize\tscore\tstatus\tissues'];
+  for (const f of F) {
+    rows.push([
+      clean(f.u.path), clean(f.orig), f.oguess ? 'yes' : '', clean(f.name), clean(f.dem), hex8(f.addr), f.size,
+      f.score == null ? '' : f.score, STATUSES[f.sc].name, f.all.join(',')
+    ].join('\t'));
+  }
+  const blob = new Blob([rows.join('\n') + '\n'], {type: 'text/tab-separated-values;charset=utf-8'});
+  const url = URL.createObjectURL(blob);
+  const a = el('a');
+  a.href = url;
+  a.download = 'goldeneye-' + (META.version || 'GOYE69') + '-functions.tsv';
+  document.body.append(a);
+  a.click();
+  a.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 1500);
+}
+
+/* ---------- state <-> location.hash ---------- */
+function defaults() {
+  return {
+    by: 'file', view: 'build', sort: 'remaining', q: '', cb: 'fn',
+    st: new Set(), cat: new Set(), iss: new Set(), obj: new Set(), size: new Set(),
+    dir: '', inl: true, chg: false, open: new Set()
+  };
+}
+function parseHash() {
+  const p = new URLSearchParams(location.hash.replace(/^#/, ''));
+  const s = defaults();
+  if (p.get('by') === 'flat') s.by = 'flat';
+  if (p.get('view') === 'orig') s.view = 'orig';
+  const sort = p.get('sort');
+  if (SORTS.some(x => x.id === sort)) s.sort = sort;
+  s.q = (p.get('q') || '').trim();
+  if (p.get('count') === 'bytes') s.cb = 'bytes';
+  for (const c of p.getAll('st')) {
+    const k = SCODE.get(c);
+    if (k !== undefined) s.st.add(k);
+  }
+  for (const c of p.getAll('cat')) {
+    const k = CATS.indexOf(c);
+    if (k >= 0) s.cat.add(k);
+  }
+  for (const c of p.getAll('iss')) s.iss.add(c);
+  for (const c of p.getAll('obj')) s.obj.add(c === 'none' ? '' : c);
+  for (const c of p.getAll('size')) {
+    const k = parseInt(c, 10);
+    if (k >= 0 && k < SIZE_LABELS.length) s.size.add(k);
+  }
+  s.dir = p.get('dir') || '';
+  if (p.get('inl') === '0') s.inl = false;
+  if (p.get('chg') === '1') s.chg = true;
+  for (const c of p.getAll('open')) s.open.add(c);
+  return s;
+}
+/* mode: 'push' (a deliberate change: Back undoes it), 'replace' (typing in the search box, the first render),
+   'none' (the state came from the location: just remember it) */
+function syncHash(mode) {
+  const p = new URLSearchParams();
+  if (S.by !== 'file') p.set('by', S.by);
+  if (S.view !== 'build') p.set('view', S.view);
+  if (S.sort !== 'remaining') p.set('sort', S.sort);
+  if (S.q) p.set('q', S.q);
+  if (S.cb !== 'fn') p.set('count', S.cb);
+  for (const k of S.st) p.append('st', STATUSES[k].code);
+  for (const k of S.cat) if (CATS[k] != null) p.append('cat', CATS[k]);
+  for (const k of S.iss) p.append('iss', k);
+  for (const k of S.obj) p.append('obj', k === '' ? 'none' : k);
+  for (const k of S.size) p.append('size', String(k));
+  if (S.dir) p.set('dir', S.dir);
+  if (!S.inl) p.set('inl', '0');
+  if (S.chg) p.set('chg', '1');
+  let openKeys = Array.from(S.open);
+  if (S.by === 'file') {   // keys of groups that are not on the page (other view, filtered out) would only use up the room
+    const shown = new Set(GROUPS.map(g => g.key));
+    openKeys = openKeys.filter(k => shown.has(k));
+  }
+  for (const k of openKeys.slice(0, MAX_OPEN_IN_HASH)) p.append('open', k);
+  const h = p.toString();
+  if (h === LAST_HASH) return;
+  const first = LAST_HASH === null;
+  LAST_HASH = h;
+  if (mode === 'none') return;
+  try {
+    const url = location.pathname + location.search + (h ? '#' + h : '');
+    if (mode === 'push' && !first) history.pushState(null, '', url);
+    else history.replaceState(null, '', url);
+  } catch (e) { /* not fatal: the state just is not kept in the URL */ }
+}
+function syncInputs() {
+  $('q').value = S.q;
+}
+
+/* ---------- sidebar ---------- */
+function section(parent, title, right) {
+  const sec = el('section', 'facet');
+  const h = el('div', 'fh');
+  h.append(el('span', 'lbl', title));
+  if (right) h.append(right);
+  const body = el('div');
+  sec.append(h, body);
+  parent.append(sec);
+  return body;
+}
+function addFacet(body, kind, key, label, color, opts) {
+  const o = opts || {};
+  const btn = el('button', 'fct' + (o.pill ? ' pill' : ''));
+  btn.type = 'button';
+  btn.setAttribute('aria-pressed', 'false');
+  let bar = null;
+  if (o.bar) { bar = el('i', 'cbar'); btn.append(bar); }
+  if (color) {
+    const sq = el('i', 'sq');
+    sq.style.background = color;
+    btn.append(sq);
+  }
+  const l = el('span', 'fl', label);
+  const c = el('span', 'fc', '0');
+  btn.append(l, c);
+  if (o.title) btn.title = o.title;
+  btn.addEventListener('click', () => onFacet(kind, key));
+  body.append(btn);
+  FE.push({kind: kind, key: key, btn: btn, cnt: c, bar: bar});
+}
+function seg(container, items, get, set) {
+  const btns = [];
+  for (const it of items) {
+    const b = el('button', 'sb', it.label);
+    b.type = 'button';
+    b.addEventListener('click', () => { set(it.id); update(); });
+    container.append(b);
+    btns.push([b, it.id, it]);
+  }
+  REFRESH.push(() => {
+    const cur = get();
+    for (const x of btns) {
+      const on = x[1] === cur;
+      x[0].classList.toggle('on', on);
+      x[0].setAttribute('aria-pressed', on ? 'true' : 'false');
+    }
+  });
+}
+
+function buildSidebar() {
+  FE = [];
+  const root = $('facets');
+  root.replaceChildren();
+
+  // STATUS
+  let body = section(root, 'Status');
+  for (let c = 0; c < 4; c++) addFacet(body, 'st', c, STATUSES[c].name, 'var(--' + STATUSES[c].key + ')');
+
+  // count by
+  body = section(root, 'Count by');
+  const cb = el('div', 'seg');
+  body.append(cb);
+  seg(cb, [{id: 'fn', label: 'functions'}, {id: 'bytes', label: 'code bytes'}], () => S.cb, v => { S.cb = v; });
+
+  // CATEGORY
+  const catHas = new Set();
+  for (const f of F) catHas.add(f.cat);
+  body = section(root, 'Category');
+  CATS.forEach((name, idx) => { if (catHas.has(idx)) addFacet(body, 'cat', idx, name, null); });
+
+  // ISSUES
+  body = section(root, 'Issues');
+  const ofBoth = 'an issue of the function or of its file';
+  addFacet(body, 'iss', 'open', 'open issue (function or file)', null, {title: ofBoth + ' is open'});
+  addFacet(body, 'iss', 'any', 'any issue (function or file)', null, {title: ofBoth + ' exists, open or closed'});
+  addFacet(body, 'iss', 'none', 'no issue', null, {title: 'neither the function nor its file has an issue'});
+  const labelFreq = new Map();
+  for (const is of ISS.values()) for (const l of is.labels) bump(labelFreq, l, 1);
+  const labels = Array.from(labelFreq.keys()).sort((a, b) => (labelFreq.get(b) - labelFreq.get(a)) || cmpStr(a, b));
+  for (const l of labels) addFacet(body, 'iss', 'l:' + l, 'label: ' + l, null, {title: ofBoth + ' has the label ' + l});
+
+  // OBJECTS.PY
+  body = section(root, 'objects.py');
+  const objHas = new Set();
+  for (const f of F) objHas.add(f.obj);
+  for (const k of ['Matching', 'Equivalent', 'NonMatching', '']) {
+    if (objHas.has(k)) addFacet(body, 'obj', k, OBJ_LABELS[k], null);
+  }
+
+  // DIRECTORY
+  const all = el('button', 'alllink', 'all');
+  all.type = 'button';
+  all.id = 'dirall';
+  all.addEventListener('click', () => { S.dir = ''; update(); });
+  body = section(root, 'Directory', all);
+  const dirTotals = new Map();
+  for (const f of F) bump(dirTotals, f.dir, 1);
+  const dirs = Array.from(dirTotals.keys()).sort((a, b) => (dirTotals.get(b) - dirTotals.get(a)) || cmpStr(a, b));
+  const dl = el('div', 'dirlist');
+  body.append(dl);
+  for (const d of dirs) addFacet(dl, 'dir', d, d, null, {bar: true});
+
+  // SIZE
+  body = section(root, 'Size');
+  body.className = 'chips';
+  for (let b = 0; b < SIZE_LABELS.length; b++) addFacet(body, 'size', b, SIZE_LABELS[b], null, {pill: true});
+
+  // options
+  body = section(root, 'Show');
+  addFacet(body, 'inl', 'inl', 'Show inline copies', null, {title: 'show or hide the inline (linkonce) copies'});
+  const prev = META.previous_commit ? ' since ' + META.previous_commit.slice(0, 7) : '';
+  addFacet(body, 'chg', 'chg', 'Changed in the last update', null, {title: 'functions whose status or score changed' + prev});
+
+  const rs = el('div', 'reset');
+  const rb = el('button', 'linkbtn', 'reset all filters');
+  rb.type = 'button';
+  rb.addEventListener('click', () => {
+    const keep = {by: S.by, view: S.view, sort: S.sort, cb: S.cb, open: S.open};
+    S = Object.assign(defaults(), keep);
+    syncInputs();
+    update();
+  });
+  rs.append(rb);
+  root.append(rs);
+
+  // collapsible on narrow screens
+  const fbtn = $('fbtn');
+  const narrow = window.matchMedia ? window.matchMedia('(max-width: 799px)') : null;
+  const setCollapsed = c => {
+    root.classList.toggle('collapsed', c);
+    fbtn.setAttribute('aria-expanded', c ? 'false' : 'true');
+  };
+  setCollapsed(!!(narrow && narrow.matches));
+  fbtn.addEventListener('click', () => setCollapsed(!root.classList.contains('collapsed')));
+  if (narrow && narrow.addEventListener) {
+    narrow.addEventListener('change', e => setCollapsed(e.matches));
+  }
+}
+
+function onFacet(kind, key) {
+  switch (kind) {
+    case 'st': toggle(S.st, key); break;
+    case 'cat': toggle(S.cat, key); break;
+    case 'iss': toggle(S.iss, key); break;
+    case 'obj': toggle(S.obj, key); break;
+    case 'size': toggle(S.size, key); break;
+    case 'dir': S.dir = S.dir === key ? '' : key; break;
+    case 'chg': S.chg = !S.chg; break;
+    case 'inl': S.inl = !S.inl; break;
+  }
+  update();
+}
+function facetCount(e) {
+  switch (e.kind) {
+    case 'st': return CNT.st[e.key];
+    case 'cat': return CNT.cat.get(e.key) || 0;
+    case 'iss': return CNT.iss.get(e.key) || 0;
+    case 'obj': return CNT.obj.get(e.key) || 0;
+    case 'dir': return CNT.dir.get(e.key) || 0;
+    case 'size': return CNT.size[e.key];
+    case 'chg': return CNT.chg;
+    case 'inl': return CNT.inl;
+  }
+  return 0;
+}
+function facetActive(e) {
+  switch (e.kind) {
+    case 'st': return S.st.has(e.key);
+    case 'cat': return S.cat.has(e.key);
+    case 'iss': return S.iss.has(e.key);
+    case 'obj': return S.obj.has(e.key);
+    case 'dir': return S.dir === e.key;
+    case 'size': return S.size.has(e.key);
+    case 'chg': return S.chg;
+    case 'inl': return S.inl;
+  }
+  return false;
+}
+function activeFilterCount() {
+  return S.st.size + S.cat.size + S.iss.size + S.obj.size + S.size.size +
+    (S.dir ? 1 : 0) + (S.chg ? 1 : 0) + (S.inl ? 0 : 1) + (S.q ? 1 : 0);
+}
+function updateFacets() {
+  let maxDir = 0, sumDir = 0;
+  for (const e of FE) {
+    if (e.kind === 'dir') {
+      const c = facetCount(e);
+      sumDir += c;
+      if (c > maxDir) maxDir = c;
+    }
+  }
+  for (const e of FE) {
+    const c = facetCount(e);
+    const on = facetActive(e);
+    e.cnt.textContent = fmtW(c);
+    e.btn.classList.toggle('on', on);
+    e.btn.setAttribute('aria-pressed', on ? 'true' : 'false');
+    e.btn.classList.toggle('zero', c === 0 && !on);
+    if (e.bar) e.bar.style.width = (maxDir ? 100 * c / maxDir : 0) + '%';
+  }
+  $('dirall').textContent = 'all ' + fmtW(sumDir);
+  const n = activeFilterCount();
+  $('fbtn').textContent = 'Filters' + (n ? ' (' + n + ' active)' : '');
+}
+
+/* ---------- toolbar ---------- */
+function buildToolbar() {
+  seg($('seg-by'), [{id: 'file', label: 'by file'}, {id: 'flat', label: 'flat list'}], () => S.by, v => { S.by = v; });
+  seg($('seg-view'), [{id: 'build', label: 'build files'}, {id: 'orig', label: 'original files'}], () => S.view, v => { S.view = v; });
+  seg($('seg-sort'), SORTS, () => S.sort, v => { S.sort = v; });
+  $('expand').addEventListener('click', () => {
+    if (S.by !== 'file') return;
+    for (const g of GROUPS) S.open.add(g.key);
+    refreshOpen();
+    syncHash('push');
+  });
+  $('collapse').addEventListener('click', () => {
+    for (const g of GROUPS) S.open.delete(g.key);
+    refreshOpen();
+    syncHash('push');
+  });
+  const list = $('list');
+  list.addEventListener('click', ev => {
+    const t = ev.target;
+    if (!(t instanceof Element) || t.closest('a')) return;
+    const nm = t.closest('button.nm');
+    if (nm) { copyText(nm.dataset.name); return; }
+    const row = t.closest('.frow');
+    if (row && row.parentNode && row.parentNode._g) toggleGroup(row.parentNode);
+  });
+  const q = $('q');
+  q.addEventListener('input', () => {
+    clearTimeout(searchTimer);
+    searchTimer = setTimeout(() => { S.q = q.value.trim(); update('replace'); }, 120);
+  });
+  q.addEventListener('keydown', ev => {
+    if (ev.key !== 'Escape') return;
+    ev.preventDefault();
+    if (q.value) {
+      q.value = '';
+      clearTimeout(searchTimer);
+      S.q = '';
+      update('replace');
+    } else {
+      q.blur();
+    }
+  });
+  document.addEventListener('keydown', ev => {
+    if (ev.key !== '/' || ev.ctrlKey || ev.metaKey || ev.altKey) return;
+    const t = ev.target;
+    const tag = t && t.tagName;
+    if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT' || (t && t.isContentEditable)) return;
+    ev.preventDefault();
+    q.focus();
+    q.select();
+  });
+}
+
+/* ---------- filtering ---------- */
+function parseQuery(q) {
+  const out = [];
+  for (const raw of q.toLowerCase().split(/\s+/)) {
+    if (!raw) continue;
+    out.push(/^#\d+$/.test(raw) ? ' ' + raw + ' ' : raw);
+  }
+  return out;
+}
+function issMatch(f) {
+  for (const k of S.iss) {
+    if (k === 'open') { if (f.hasOpen) return true; }
+    else if (k === 'any') { if (f.hasAny) return true; }
+    else if (k === 'none') { if (!f.hasAny) return true; }
+    else if (k.startsWith('l:') && f.lbls.includes(k.slice(2))) return true;
+  }
+  return false;
+}
+function newCounts() {
+  return {st: [0, 0, 0, 0], cat: new Map(), iss: new Map(), obj: new Map(), dir: new Map(), size: [0, 0, 0, 0, 0], chg: 0, inl: 0};
+}
+function countFor(c, f, w, mask) {
+  if (mask & FB.status) c.st[f.sc] += w;
+  if (mask & FB.cat) bump(c.cat, f.cat, w);
+  if (mask & FB.iss) {
+    if (f.hasOpen) bump(c.iss, 'open', w);
+    bump(c.iss, f.hasAny ? 'any' : 'none', w);
+    for (const l of f.lbls) bump(c.iss, 'l:' + l, w);
+  }
+  if (mask & FB.obj) bump(c.obj, f.obj, w);
+  if (mask & FB.dir) bump(c.dir, f.dir, w);
+  if (mask & FB.size) c.size[f.sb] += w;
+  if (f.changed && mask === ALL) c.chg += w;
+  if (f.inline && (mask & FB.inline)) c.inl += w;
+}
+function computeFilter() {
+  const terms = parseQuery(S.q);
+  const n = F.length;
+  const vis = [];
+  const cn = newCounts();
+  const byFn = S.cb === 'fn';
+  let bytes = 0;
+  for (let i = 0; i < n; i++) {
+    const f = F[i];
+    let m = 0;
+    if (terms.length) {
+      for (let t = 0; t < terms.length; t++) {
+        if (!f.hay.includes(terms[t])) { m |= FB.search; break; }
+      }
+    }
+    if (!S.inl && f.inline) m |= FB.inline;
+    if (S.chg && !f.changed) m |= FB.changed;
+    if (S.st.size && !S.st.has(f.sc)) m |= FB.status;
+    if (S.cat.size && !S.cat.has(f.cat)) m |= FB.cat;
+    if (S.iss.size && !issMatch(f)) m |= FB.iss;
+    if (S.obj.size && !S.obj.has(f.obj)) m |= FB.obj;
+    if (S.dir && f.dir !== S.dir) m |= FB.dir;
+    if (S.size.size && !S.size.has(f.sb)) m |= FB.size;
+    const w = byFn ? 1 : f.size;
+    if (m === 0) {
+      vis.push(i);
+      bytes += f.size;
+      countFor(cn, f, w, ALL);
+    } else if ((m & (m - 1)) === 0) {
+      countFor(cn, f, w, m);     // passes everything except this one facet
+    }
+  }
+  VIS = vis;
+  VIS_BYTES = bytes;
+  CNT = cn;
+}
+
+/* ---------- groups and sorting ---------- */
+function buildGroups() {
+  const orig = S.view === 'orig';
+  const fstat = orig ? FILESTAT.orig : FILESTAT.build;
+  const byFn = S.cb === 'fn';
+  const map = new Map();
+  const groups = [];
+  for (const i of VIS) {
+    const f = F[i];
+    const key = orig ? f.okey : f.bkey;
+    let g = map.get(key);
+    if (!g) {
+      g = {key: key, u: f.u, orig: orig ? f.oname : null, fns: [], n: [0, 0, 0, 0], b: [0, 0, 0, 0],
+        chg: 0, since: '', fstat: fileStatus(fstat.get(key)), w: null, tot: 0, rem: 0, sortKey: '',
+        ow: [0, 0], iw: [0, 0]};   // [all, not matching] of the own functions and of the inline copies
+      g.sortKey = f.u.path + '\u0001' + (g.orig || '');
+      map.set(key, g);
+      groups.push(g);
+    }
+    g.fns.push(i);
+    g.n[f.sc]++;
+    g.b[f.sc] += f.size;
+    const part = f.inline ? g.iw : g.ow;
+    part[0] += byFn ? 1 : f.size;
+    if (f.sc !== 0) part[1] += byFn ? 1 : f.size;
+    if (f.changed) {
+      g.chg++;
+      if (f.since > g.since) g.since = f.since;
+    }
+  }
+  for (const g of groups) {
+    g.w = byFn ? g.n : g.b;
+    g.tot = g.w[0] + g.w[1] + g.w[2] + g.w[3];
+    g.rem = g.tot - g.w[0];
+  }
+  return groups;
+}
+function sortGroups(groups) {
+  let cmp;
+  switch (S.sort) {
+    case 'path':
+      cmp = (a, b) => cmpStr(a.sortKey, b.sortKey);
+      break;
+    case 'closest':
+      cmp = (a, b) => {
+        const ar = a.n[1] + a.n[2] + a.n[3], br = b.n[1] + b.n[2] + b.n[3];
+        if ((ar > 0) !== (br > 0)) return ar > 0 ? -1 : 1;
+        if (ar !== br) return ar - br;
+        const ap = a.tot ? a.w[0] / a.tot : 0, bp = b.tot ? b.w[0] / b.tot : 0;
+        if (ap !== bp) return bp - ap;
+        if (a.fstat !== b.fstat) return a.fstat - b.fstat;
+        return cmpStr(a.sortKey, b.sortKey);
+      };
+      break;
+    case 'notstarted':
+      cmp = (a, b) => (b.w[3] - a.w[3]) || cmpStr(a.sortKey, b.sortKey);
+      break;
+    case 'recent':
+      cmp = (a, b) => ((b.chg > 0) - (a.chg > 0)) || cmpStr(b.since, a.since) || (b.chg - a.chg) || cmpStr(a.sortKey, b.sortKey);
+      break;
+    default:
+      cmp = (a, b) => (b.rem - a.rem) || cmpStr(a.sortKey, b.sortKey);
+  }
+  groups.sort(cmp);
+}
+function flatComparator() {
+  switch (S.sort) {
+    case 'path':
+      return (a, b) => cmpStr(a.u.path, b.u.path) || (a.addr - b.addr);
+    case 'closest':
+      return (a, b) => ((a.sc === 0) - (b.sc === 0)) ||
+        ((b.score == null ? -1 : b.score) - (a.score == null ? -1 : a.score)) || (a.size - b.size) || (a.addr - b.addr);
+    case 'notstarted':
+      return (a, b) => ((b.sc === 3) - (a.sc === 3)) || (b.size - a.size) || (a.addr - b.addr);
+    case 'recent':
+      return (a, b) => (b.changed - a.changed) || cmpStr(b.since, a.since) || (b.size - a.size) || (a.addr - b.addr);
+    default:
+      return (a, b) => ((a.sc === 0) - (b.sc === 0)) || (b.size - a.size) || (a.addr - b.addr);
+  }
+}
+
+/* ---------- rendering the list ---------- */
+function update(mode) {
+  computeFilter();
+  updateFacets();
+  for (const r of REFRESH) r();
+  renderMain();
+  syncHash(mode || 'push');
+}
+
+function renderMain() {
+  const list = $('list');
+  if (flatIO) { flatIO.disconnect(); flatIO = null; }
+  if (openIO) { openIO.disconnect(); openIO = null; }
+  list.replaceChildren();
+  GROUPS = [];
+  let files;
+  if (S.by === 'flat') {
+    const keys = new Set();
+    for (const i of VIS) keys.add(S.view === 'orig' ? F[i].okey : F[i].bkey);
+    files = keys.size;
+    renderFlat(list);
+  } else {
+    GROUPS = buildGroups();
+    sortGroups(GROUPS);
+    files = GROUPS.length;
+    const frag = document.createDocumentFragment();
+    for (const g of GROUPS) frag.append(renderGroup(g));
+    list.append(frag);
+  }
+  if (!VIS.length) {
+    const e = el('div', 'empty', 'No functions match the current filters.');
+    list.append(e);
+  }
+  const c = $('count');
+  c.replaceChildren();
+  c.append(document.createTextNode(plural(VIS.length, 'function') + ' in ' + plural(files, 'file')));
+  c.append(el('span', 'sub', ' · ' + fmtBytes(VIS_BYTES)));
+  c.title = 'files that hold at least one function' +
+    (DATAONLY.length ? '; ' + plural(DATAONLY.length, 'more unit') + ' hold only data and are not listed' : '');
+  $('expand').disabled = S.by !== 'file';
+  $('collapse').disabled = S.by !== 'file';
+  if (firstRender) {
+    firstRender = false;
+    const open = list.querySelector('.file.open');
+    if (open && S.open.size) open.scrollIntoView({block: 'start'});
+  }
+}
+
+function renderFlat(list) {
+  const idxs = VIS.slice();
+  const cmp = flatComparator();
+  idxs.sort((a, b) => cmp(F[a], F[b]));
+  const box = el('div', 'flat');
+  list.append(box);
+  chunked(box, idxs, f => fnRow(f, true), CHUNK_FLAT, true);
+}
+
+function chunked(box, idxs, makeRow, chunk, auto) {
+  let pos = 0;
+  let io = null;
+  const more = el('button', 'more');
+  more.type = 'button';
+  function step() {
+    const end = Math.min(pos + chunk, idxs.length);
+    const frag = document.createDocumentFragment();
+    for (; pos < end; pos++) frag.append(makeRow(F[idxs[pos]]));
+    box.insertBefore(frag, more);
+    if (pos >= idxs.length) {
+      more.remove();
+      if (io) { io.disconnect(); io = null; }
+    } else {
+      more.textContent = 'show more (' + fmt(idxs.length - pos) + ' left)';
+      if (io) { io.unobserve(more); io.observe(more); }
+    }
+  }
+  more.addEventListener('click', step);
+  box.append(more);
+  step();
+  if (auto && pos < idxs.length && typeof IntersectionObserver === 'function') {
+    io = new IntersectionObserver(entries => {
+      for (const e of entries) if (e.isIntersecting) step();
+    }, {rootMargin: '800px'});
+    flatIO = io;
+    io.observe(more);
+  }
+}
+
+function openIssueNumbers(g) {
+  const s = new Set();
+  const add = n => { const is = ISS.get(n); if (!is || is.state === 'open') s.add(n); };
+  for (const n of g.u.issues) add(n);
+  for (const i of g.fns) for (const n of F[i].own) add(n);
+  return Array.from(s).sort((a, b) => a - b);
+}
+
+function renderGroup(g) {
+  const wrap = el('div', 'file');
+  wrap._g = g;
+  const row = el('div', 'frow');
+  const head = el('button', 'fname');
+  head.type = 'button';
+  head.setAttribute('aria-expanded', 'false');
+  const sq = el('i', 'sq');
+  sq.style.background = 'var(--' + STATUSES[g.fstat].key + ')';
+  sq.title = 'File status: ' + STATUSES[g.fstat].name;
+  sq.append(el('span', 'vh', STATUSES[g.fstat].name + ': '));
+  const path = el('span', 'path');
+  appendPathLabel(path, g.u, g.orig);
+  path.title = g.u.path + (g.orig ? ' › ' + g.orig : '');
+  const caret = el('span', 'caret', '▸');
+  caret.setAttribute('aria-hidden', 'true');   // aria-expanded says it
+  head.append(caret, sq, path);
+  row.append(head);
+
+  const chips = el('span', 'rchips');
+  const open = openIssueNumbers(g);
+  for (const n of open.slice(0, 3)) {
+    const a = issueLink(n);
+    a.className = 'pchip';
+    chips.append(a);
+  }
+  if (open.length > 3) {
+    const more = el('span', 'pchip', '+' + (open.length - 3));
+    more.title = open.slice(3).map(n => '#' + n).join(', ');
+    chips.append(more);
+  }
+  if (g.u.objects === 'Matching') {
+    const c = el('span', 'pchip linked', 'linked');
+    c.title = 'objects.py: Matching (linked from source)';
+    chips.append(c);
+  } else if (g.u.objects === 'Equivalent') {
+    const c = el('span', 'pchip equiv', 'equivalent');
+    c.title = 'objects.py: Equivalent';
+    chips.append(c);
+  }
+  if (g.orig && GUESSED.has(g.key)) {
+    const c = el('span', 'pchip guess', 'name guessed');
+    c.title = 'No symbol of the original names this file: its name is our guess';
+    chips.append(c);
+  }
+  if (chips.childNodes.length) row.append(chips);
+
+  const bar = el('span', 'bar');
+  stackedBar(bar, g.w, statusTip(g.n, g.b));
+  row.append(bar);
+  const num = el('span', 'num' + (g.rem ? '' : ' zero'), fmtW(g.rem));
+  num.append(el('span', 'left', ' left'));
+  num.title = remainingTip(g);
+  row.append(num);
+  wrap.append(row);
+  if (S.open.has(g.key)) applyOpen(g, wrap, true);
+  return wrap;
+}
+
+/* what the number of a file row counts: the functions (or code bytes) that do not match, own and inline copies */
+function remainingTip(g) {
+  const what = S.cb === 'bytes' ? 'code' : 'functions';
+  let t = fmtW(g.ow[1]) + ' of ' + fmtW(g.ow[0]) + ' own ' + what + ' not matching';
+  if (g.iw[0]) t += ', plus ' + fmtW(g.iw[1]) + ' of ' + fmtW(g.iw[0]) + ' inline copies';
+  return t;
+}
+
+function toggleGroup(wrap) {
+  const g = wrap._g;
+  if (S.open.has(g.key)) S.open.delete(g.key); else S.open.add(g.key);
+  applyOpen(g, wrap);
+  syncHash();
+}
+/* lazy: an open group is marked open at once but its body is built when the row comes near the viewport, so that
+   "expand all" and a search with every group open do not build tens of thousands of rows at a time */
+function applyOpen(g, wrap, lazy) {
+  const isOpen = S.open.has(g.key);
+  const head = wrap.querySelector('.fname');
+  head.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+  head.querySelector('.caret').textContent = isOpen ? '▾' : '▸';
+  wrap.classList.toggle('open', isOpen);
+  let body = wrap.querySelector('.fbody');
+  if (isOpen && !body) {
+    if (lazy && openObserver()) { openIO.observe(wrap); return; }
+    body = el('div', 'fbody');
+    wrap.append(body);
+    renderBody(g, body);
+  } else if (!isOpen && body) {
+    body.remove();
+  }
+}
+function openObserver() {
+  if (openIO) return openIO;
+  if (typeof IntersectionObserver !== 'function') return null;
+  openIO = new IntersectionObserver(entries => {
+    for (const e of entries) {
+      if (!e.isIntersecting) continue;
+      openIO.unobserve(e.target);
+      const w = e.target;
+      if (w._g && S.open.has(w._g.key)) applyOpen(w._g, w, false);
+    }
+  }, {rootMargin: '800px'});
+  return openIO;
+}
+function refreshOpen() {
+  for (const wrap of $('list').children) {
+    if (wrap._g) applyOpen(wrap._g, wrap, true);
+  }
+}
+
+function infoLine(info, label, node) {
+  info.append(el('div', 'lbl', label));
+  const d = el('div', 'iline');
+  d.append(node);
+  info.append(d);
+}
+function renderBody(g, body) {
+  const u = g.u;
+  const info = el('div', 'finfo');
+  if (u.file) {
+    infoLine(info, 'Source', repoLink('blob/' + COMMIT + '/' + u.file.split('/').map(encodeURIComponent).join('/'), u.file));
+  }
+  if (g.orig) {
+    infoLine(info, 'Original', document.createTextNode(g.orig + (GUESSED.has(g.key) ? ' (name guessed: no symbol of the original names it)' : '')));
+  }
+  if (u.objects) infoLine(info, 'objects.py', document.createTextNode(OBJ_LABELS[u.objects] || u.objects));
+  for (const n of u.issues) {
+    const is = ISS.get(n);
+    const d = el('span');
+    d.append(issueLink(n));
+    if (is) {
+      if (is.title) d.append(document.createTextNode(' ' + is.title));
+      d.append(el('span', 'istate', is.state));
+    }
+    infoLine(info, 'Issue', d);
+  }
+  if (info.childNodes.length) body.append(info);
+
+  const main = [], inl = [];
+  for (const i of g.fns) (F[i].inline ? inl : main).push(i);
+  const byAddr = (a, b) => F[a].addr - F[b].addr;
+  main.sort(byAddr);
+  inl.sort(byAddr);
+  const box = el('div', 'frows');
+  body.append(box);
+  chunked(box, main, f => fnRow(f, false), CHUNK_GROUP, false);
+  if (inl.length) body.append(inlineSection(g, inl));
+}
+
+function inlineSection(g, idxs) {
+  const sub = el('div', 'inl');
+  const head = el('button', 'inlhead');
+  head.type = 'button';
+  const box = el('div', 'frows');
+  const apply = () => {
+    const open = INL_OPEN.has(g.key);
+    head.textContent = (open ? '▾ ' : '▸ ') + 'inline copies (' + fmt(idxs.length) + ')';
+    head.setAttribute('aria-expanded', open ? 'true' : 'false');
+    box.replaceChildren();
+    if (open) chunked(box, idxs, f => fnRow(f, false), CHUNK_GROUP, false);
+  };
+  head.addEventListener('click', () => {
+    toggle(INL_OPEN, g.key);
+    apply();
+  });
+  apply();
+  sub.append(head, box);
+  return sub;
+}
+
+/* why a function has no score: what the pass letters say about it */
+function noScoreTip(pass) {
+  if (pass.includes('w')) return 'written, but the report has no score for it (it cannot pair this function)';
+  if (pass.includes('s')) return 'submitted to the integrator, not in the report';
+  if (pass.includes('i')) return 'an issue describes an attempt; the report has no score for it';
+  return 'not written yet';
+}
+
+function fnRow(f, flat) {
+  const st = STATUSES[f.sc];
+  const r = el('div', 'fn');
+  const chip = el('span', 'chip c-' + st.key);
+  const letter = el('span', null, st.letter);
+  letter.setAttribute('aria-hidden', 'true');
+  chip.append(letter, el('span', 'vh', st.name));
+  chip.title = st.name + (f.pass ? ' (pass: ' + f.pass + ')' : '');
+  r.append(chip);
+
+  const mid = el('div');
+  const line = el('div', 'nmline');
+  const nm = el('button', 'nm', f.dem || f.name);
+  nm.type = 'button';
+  nm.dataset.name = f.name;
+  nm.title = f.name + '\n(click to copy the mangled name)';
+  line.append(nm);
+  if (f.inline) line.append(el('span', 'tag', 'inline'));
+  if (f.oguess) {
+    const t = el('span', 'tag guess', 'file guessed');
+    t.title = 'No symbol of the original places this function in ' + f.orig + ': its file is our guess';
+    line.append(t);
+  }
+  if (f.changed) {
+    const d = el('i', 'dot');
+    d.title = 'changed in the last update' + (f.since ? ' (since ' + f.since + ')' : '');
+    line.append(d);
+  }
+  mid.append(line);
+
+  const sub = el('div', 'sub');
+  if (flat) {
+    const p = el('span');
+    appendPathLabel(p, f.u, S.view === 'orig' ? f.oname : null);
+    sub.append(p);
+    if (S.view !== 'orig' && f.orig) sub.append(el('span', null, 'from ' + f.orig));
+  } else if (S.view === 'build' && f.orig) {
+    sub.append(el('span', null, 'from ' + f.orig));
+  }
+  for (const n of f.own) sub.append(issueLink(n));
+  if (sub.childNodes.length) mid.append(sub);
+  r.append(mid);
+
+  const nums = el('div', 'nums');
+  nums.append(el('span', 'addr', hex8(f.addr)));
+  nums.append(el('span', 'size', fmt(f.size) + ' B'));
+  const sc = el('span', 'score' + (f.sc === 0 ? ' full' : (f.score == null ? ' none' : '')),
+    f.score == null ? '—' : f.score.toFixed(2) + '%');
+  if (f.score == null) sc.title = noScoreTip(f.pass);
+  nums.append(sc);
+  r.append(nums);
+  return r;
+}
+
+/* ---------- start ---------- */
+load();
+})();
+</script>
+</body>
+</html>
