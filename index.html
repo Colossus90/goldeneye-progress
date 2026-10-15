@@ -387,6 +387,7 @@ footer p { margin: 6px 0; max-width: 90ch; }
       <div class="hr" id="hr" hidden>
         <button id="h-main" type="button"></button>
         <div id="h-counts"></div>
+        <div id="h-linked"></div>
         <div id="h-port"></div>
         <div id="h-built"></div>
       </div>
@@ -911,6 +912,22 @@ function renderHeadline() {
 function renderHeader() {
   if (META.version) $('eyebrow').textContent = 'GoldenEye: Rogue Agent decompilation · ' + META.version;
   renderHeadline();
+
+  // matched and linked: the code of the files objects.py marks Matching, built from source into the
+  // byte-identical executable (objdiff's complete_code), and how many of the files that is
+  const rt = META.report_totals || {};
+  const files = U.filter(u => u.objects);
+  const linkedFiles = files.filter(u => u.objects === 'Matching').length;
+  const lk = $('h-linked');
+  if (rt.complete_code != null && rt.total_code) {
+    lk.textContent = 'matched and linked: ' + fmtBytes(rt.complete_code) + ' of code (' + pct(rt.complete_code, rt.total_code) +
+      ') · ' + fmt(linkedFiles) + ' of ' + fmt(files.length) + ' files';
+    lk.title = 'code of the files marked Matching in objects.py: built from source and linked into the ' +
+      'byte-identical executable';
+    lk.hidden = false;
+  } else {
+    lk.hidden = true;
+  }
 
   const pf = TOT.n[0] + TOT.n[1];
   const pb = TOT.b[0] + TOT.b[1];
