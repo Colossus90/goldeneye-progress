@@ -24,7 +24,8 @@ try { if (localStorage.getItem("ge-theme") === "light") document.documentElement
   --accent: #58a6ff;
   --link: #6cb0ff;
   --bar: rgba(88, 166, 255, 0.16);
-  --m: #3fb950;
+  --l: #3fb950;
+  --m: #8ddb8c;
   --e: #39c5cf;
   --n: #d29922;
   --s: #484f58;
@@ -47,7 +48,9 @@ try { if (localStorage.getItem("ge-theme") === "light") document.documentElement
   --accent: #0969da;
   --link: #0969da;
   --bar: rgba(9, 105, 218, 0.12);
-  --m: #1a7f37;
+  --l: #1a7f37;
+  --m: #6fdd8b;
+  --m-fg: #0f1117;
   --e: #077983;
   --n: #9a6700;
   --s: #8c959f;
@@ -125,7 +128,10 @@ h1 {
 #h-main:hover .swap { color: var(--link); }
 #h-counts { display: flex; flex-wrap: wrap; gap: 4px 14px; justify-content: flex-end; }
 .hc { display: inline-flex; align-items: center; gap: 6px; }
-#h-bar { margin-top: 14px; height: 8px; }
+#meters { margin-top: 14px; display: flex; flex-direction: column; gap: 8px; }
+.mlabel { font-size: 12px; color: var(--dim); margin-bottom: 4px; }
+.mlabel b { color: var(--bright); font-weight: 600; }
+.mbar { height: 8px; }
 
 /* layout */
 #msg { max-width: 1440px; margin: 0 auto; padding: 32px 24px; color: var(--text); }
@@ -258,14 +264,14 @@ h1 {
   white-space: nowrap;
   color: var(--text);
 }
-.pchip.linked { color: var(--m); border-color: var(--m); }
+.pchip.linked { color: var(--l); border-color: var(--l); }
 .pchip.equiv { color: var(--e); border-color: var(--e); }
 .pchip.guess, .tag.guess { border-style: dashed; }
 a.pchip { color: var(--bright); }
 a.pchip:hover { text-decoration: none; border-color: var(--accent); }
 .bar { display: flex; flex: 0 0 140px; height: 10px; border-radius: 3px; overflow: hidden; background: var(--line); }
 .bar i { display: block; height: 100%; min-width: 2px; flex-shrink: 1; }
-#h-bar.bar { flex: none; width: 100%; border-radius: 4px; }
+.mbar.bar { flex: none; width: 100%; border-radius: 4px; }
 .num { flex: 0 0 104px; text-align: right; color: var(--bright); font-variant-numeric: tabular-nums; white-space: nowrap; }
 .num.zero { color: var(--dim); }
 .num .left { font-size: 11px; color: var(--dim); }
@@ -293,7 +299,8 @@ a.pchip:hover { text-decoration: none; border-color: var(--accent); }
   line-height: 18px;
   color: var(--chip-fg);
 }
-.c-m { background: var(--m); }
+.c-l { background: var(--l); }
+.c-m { background: var(--m); color: var(--m-fg, var(--chip-fg)); }
 .c-e { background: var(--e); }
 .c-n { background: var(--n); }
 .c-s { background: var(--s); color: var(--bright); }
@@ -318,7 +325,7 @@ a.pchip:hover { text-decoration: none; border-color: var(--accent); }
 .nums .addr { width: 86px; color: var(--text); }
 .nums .size { width: 72px; text-align: right; color: var(--dim); }
 .nums .score { width: 64px; text-align: right; }
-.score.full { color: var(--m); }
+.score.full { color: var(--l); }
 .score.none { color: var(--dim); }
 .inl { margin-top: 8px; border-top: 1px solid var(--line); }
 .inlhead { background: none; border: 0; padding: 6px 4px; cursor: pointer; color: var(--text); }
@@ -387,12 +394,16 @@ footer p { margin: 6px 0; max-width: 90ch; }
       <div class="hr" id="hr" hidden>
         <button id="h-main" type="button"></button>
         <div id="h-counts"></div>
-        <div id="h-linked"></div>
+        <div id="h-match"></div>
         <div id="h-port"></div>
+        <div id="h-linked"></div>
         <div id="h-built"></div>
       </div>
     </div>
-    <div id="h-bar" class="bar" hidden></div>
+    <div id="meters" hidden>
+      <div class="meter"><div class="mlabel" id="h-bar-label"></div><div id="h-bar" class="bar mbar"></div></div>
+      <div class="meter" id="d-meter" hidden><div class="mlabel" id="d-bar-label"></div><div id="d-bar" class="bar mbar"></div></div>
+    </div>
   </div>
 </header>
 
@@ -423,7 +434,8 @@ footer p { margin: 6px 0; max-width: 90ch; }
 <footer>
   <div class="lbl">What the statuses mean</div>
   <ul>
-    <li><i class="sq" style="background:var(--m)"></i><span><b>Matching</b>: 100 %</span></li>
+    <li><i class="sq" style="background:var(--l)"></i><span><b>Matching and linked</b>: 100 %, and its file is built from source and linked into the byte-identical executable (objects.py: Matching)</span></li>
+    <li><i class="sq" style="background:var(--m)"></i><span><b>Matching, not linked yet</b>: 100 %, but its file is not linked from source yet</span></li>
     <li><i class="sq" style="background:var(--e)"></i><span><b>Equivalent</b>: behaves like the original, not byte-identical</span></li>
     <li><i class="sq" style="background:var(--n)"></i><span><b>Not matching</b>: had a pass, below 100 % and not equivalent</span></li>
     <li><i class="sq" style="background:var(--s)"></i><span><b>Not started</b>: no pass yet</span></li>
@@ -464,12 +476,16 @@ footer p { margin: 6px 0; max-width: 90ch; }
 
 /* ---------- constants ---------- */
 const STATUSES = [
-  {code: 'M', name: 'Matching', key: 'm', letter: 'M'},
+  {code: 'L', name: 'Matching and linked', key: 'l', letter: 'L'},
+  {code: 'M', name: 'Matching, not linked yet', key: 'm', letter: 'M'},
   {code: 'E', name: 'Equivalent', key: 'e', letter: 'E'},
   {code: 'N', name: 'Not matching', key: 'n', letter: 'N'},
   {code: '-', name: 'Not started', key: 's', letter: '–'}
 ];
-const SCODE = new Map([['M', 0], ['E', 1], ['N', 2], ['-', 3]]);
+/* data.json has M/E/N/-; a Matching function whose file objects.py marks Matching becomes L (linked) on load.
+   The URL's st= codes are the same letters. */
+const SCODE = new Map([['L', 0], ['M', 1], ['E', 2], ['N', 3], ['-', 4]]);
+const NST = STATUSES.length;
 const SIZE_LABELS = ['<64 B', '64-256 B', '256 B-1 KB', '1-4 KB', '>4 KB'];
 const SORTS = [
   {id: 'remaining', label: 'most remaining'},
@@ -495,7 +511,7 @@ const DEFAULT_REPO = 'Colossus90/goldeneye-rogue-agent';
 /* ---------- state ---------- */
 let META = null, REPO = DEFAULT_REPO, COMMIT = 'main';
 let CATS = [], U = [], F = [], ISS = new Map();
-let TOT = null;            // totals over all functions: {n: [4], b: [4], fn, bytes}
+let TOT = null;            // totals over all functions: {n: [NST], b: [NST], fn, bytes}
 let GUESSED = new Set();  // okeys of the original files with a guessed name
 let FILESTAT = null;       // {build: Map, orig: Map} of unfiltered aggregates
 let S = null;              // UI state
@@ -528,6 +544,7 @@ function fmtBytes(n) {
   return n >= 10240 ? (n / 1024).toFixed(1) + ' KB' : fmt(n) + ' B';
 }
 function fmtW(n) { return S && S.cb === 'bytes' ? fmtBytes(n) : fmt(n); }
+function fmtMB(n) { return (n / 1048576).toFixed(2) + ' MB'; }
 function pct(n, d) { return d > 0 ? (100 * n / d).toFixed(1) + '%' : '0.0%'; }
 function hex8(a) { return '0x' + (a >>> 0).toString(16).toUpperCase().padStart(8, '0'); }
 function cmpStr(a, b) { return a < b ? -1 : (a > b ? 1 : 0); }
@@ -728,7 +745,8 @@ function init(D) {
     const u = U[r[fi.unit]];
     if (!u) throw new Error('function #' + i + ' refers to the unknown unit ' + r[fi.unit]);
     let sc = SCODE.get(r[fi.status]);
-    if (sc === undefined) sc = 3;
+    if (sc === undefined || sc === 0) sc = 4;
+    if (sc === 1 && u.objects === 'Matching') sc = 0;
     const name = String(r[fi.name]);
     const dem = r[fi.demangled] || null;
     const addr = r[fi.address] || 0;
@@ -775,7 +793,7 @@ function init(D) {
   }
 
   // totals and unfiltered per-file aggregates
-  TOT = {n: [0, 0, 0, 0], b: [0, 0, 0, 0], fn: F.length, bytes: 0};
+  TOT = {n: [0, 0, 0, 0, 0], b: [0, 0, 0, 0, 0], fn: F.length, bytes: 0};
   FILESTAT = {build: new Map(), orig: new Map()};
   for (const f of F) {
     TOT.n[f.sc]++;
@@ -797,7 +815,7 @@ function init(D) {
   syncInputs();
   $('msg').hidden = true;
   $('hr').hidden = false;
-  $('h-bar').hidden = false;
+  $('meters').hidden = false;
   $('app').hidden = false;
   update('replace');
   // Back and Forward step through the states that syncHash pushed; so does an edited hash
@@ -832,24 +850,25 @@ function renderDataOnly() {
 
 function addAgg(map, key, f) {
   let a = map.get(key);
-  if (!a) { a = {n: [0, 0, 0, 0], any: false}; map.set(key, a); }
+  if (!a) { a = {n: [0, 0, 0, 0, 0], any: false}; map.set(key, a); }
   a.n[f.sc]++;
-  if (f.pass || f.sc < 3) a.any = true;
+  if (f.pass || f.sc < 4) a.any = true;
 }
 function fileStatus(a) {
-  if (!a) return 3;
-  const t = a.n[0] + a.n[1] + a.n[2] + a.n[3];
+  if (!a) return 4;
+  const t = a.n[0] + a.n[1] + a.n[2] + a.n[3] + a.n[4];
   if (t > 0 && a.n[0] === t) return 0;
   if (t > 0 && a.n[0] + a.n[1] === t) return 1;
-  return a.any ? 2 : 3;
+  if (t > 0 && a.n[0] + a.n[1] + a.n[2] === t) return 2;
+  return a.any ? 3 : 4;
 }
 
 /* ---------- header ---------- */
 function stackedBar(bar, counts, tip) {
   bar.replaceChildren();
   let tot = 0;
-  for (let c = 0; c < 4; c++) tot += counts[c];
-  for (let c = 0; c < 4; c++) {
+  for (let c = 0; c < NST; c++) tot += counts[c];
+  for (let c = 0; c < NST; c++) {
     if (!counts[c] || !tot) continue;
     const s = el('i');
     s.style.width = (100 * counts[c] / tot) + '%';
@@ -864,11 +883,13 @@ function stackedBar(bar, counts, tip) {
 }
 function statusTip(n, b) {
   const lines = [];
-  for (let c = 0; c < 4; c++) lines.push(STATUSES[c].name + ': ' + fmt(n[c]) + ' functions, ' + fmt(b[c]) + ' B');
+  for (let c = 0; c < NST; c++) lines.push(STATUSES[c].name + ': ' + fmt(n[c]) + ' functions, ' + fmt(b[c]) + ' B');
   return lines.join('\n');
 }
-/* The headline, the status counts under it and the header bar show code bytes (the default) or
-   functions; clicking the headline switches, and the choice is kept like the theme. */
+/* The headline (matched and linked: the code of the files objects.py marks Matching, built from source into
+   the byte-identical executable, objdiff's complete_code; or those files' functions), the status counts under it
+   and the header bar show code bytes (the default) or functions; clicking the headline switches, and the choice is
+   kept like the theme. */
 let HEADLINE = 'code';
 try { if (localStorage.getItem('ge-headline') === 'functions') HEADLINE = 'functions'; } catch (e) { /* no storage */ }
 
@@ -879,15 +900,16 @@ function renderHeadline() {
   let m, t;
   if (code) {
     t = rt.total_code != null ? rt.total_code : TOT.bytes;
-    m = rt.matched_code != null ? rt.matched_code : TOT.b[0];
-    hm.textContent = fmtBytes(m) + ' of ' + fmtBytes(t) + ' code matched (' + pct(m, t) + ')';
+    m = rt.complete_code != null ? rt.complete_code : TOT.b[0];
+    hm.textContent = fmtBytes(m) + ' of ' + fmtBytes(t) + ' code matched and linked (' + pct(m, t) + ')';
   } else {
-    t = rt.total_functions != null ? rt.total_functions : TOT.fn;
-    m = rt.matched_functions != null ? rt.matched_functions : TOT.n[0];
-    hm.textContent = fmt(m) + ' of ' + fmt(t) + ' functions matched (' + pct(m, t) + ')';
+    t = TOT.fn;
+    m = TOT.n[0];
+    hm.textContent = fmt(m) + ' of ' + fmt(t) + ' functions matched and linked (' + pct(m, t) + ')';
   }
   hm.append(el('span', 'swap', '⇄ ' + (code ? 'functions' : 'code')));
-  hm.title = 'show ' + (code ? 'functions matched' : 'code matched') + ' instead';
+  hm.title = 'matched and linked: built from source and linked into the byte-identical executable ' +
+    '(the files objects.py marks Matching). Click to show ' + (code ? 'functions' : 'code') + ' instead';
   hm.onclick = function () {
     HEADLINE = code ? 'functions' : 'code';
     try {
@@ -899,7 +921,7 @@ function renderHeadline() {
 
   const cl = $('h-counts');
   cl.replaceChildren();
-  for (const c of [1, 2, 3]) {
+  for (const c of [1, 2, 3, 4]) {
     const s = el('span', 'hc');
     const q = el('i', 'sq');
     q.style.background = 'var(--' + STATUSES[c].key + ')';
@@ -907,33 +929,63 @@ function renderHeadline() {
     cl.append(s);
   }
   stackedBar($('h-bar'), code ? TOT.b : TOT.n, statusTip(TOT.n, TOT.b));
+  if (code) {
+    const ct = rt.total_code || TOT.bytes;
+    meterLabel($('h-bar-label'), 'Code (' + fmtMB(ct) + ')',
+      rt.matched_code != null ? rt.matched_code : TOT.b[0] + TOT.b[1], m, ct);
+  } else {
+    meterLabel($('h-bar-label'), 'Functions (' + fmt(TOT.fn) + ')', TOT.n[0] + TOT.n[1], TOT.n[0], TOT.fn);
+  }
+}
+/* A meter like decomp.dev's: the size, then the matched share (at 100 %, linked or not) and the linked share */
+function meterLabel(e, head, matched, linked, total) {
+  e.replaceChildren(el('b', null, head),
+    document.createTextNode(' · ' + pct(matched, total) + ' matched · ' + pct(linked, total) + ' linked'));
+}
+/* The data meter: objdiff's data totals (the report's total_data, matched_data and complete_data). Matched is the
+   data at 100 %, linked the data of the files linked from source; the rest has no match yet. Hidden without them. */
+function renderDataMeter() {
+  const rt = META.report_totals || {};
+  const t = rt.total_data || 0;
+  $('d-meter').hidden = !t;
+  if (!t) return;
+  const dm = rt.matched_data || 0, dc = rt.complete_data || 0;
+  const dl = Math.min(dc, t), dn = Math.max(0, dm - dl), dr = Math.max(0, t - dl - dn);  // no negative segment
+  meterLabel($('d-bar-label'), 'Data (' + fmtMB(t) + ')', dm, dc, t);
+  stackedBar($('d-bar'), [dl, dn, 0, 0, dr],
+    'Data matched and linked: ' + fmt(dl) + ' B\nData matched, not linked yet: ' + fmt(dn) + ' B\n' +
+    'Data not matched yet: ' + fmt(dr) + ' B');
 }
 
 function renderHeader() {
   if (META.version) $('eyebrow').textContent = 'GoldenEye: Rogue Agent decompilation · ' + META.version;
   renderHeadline();
+  renderDataMeter();
 
-  // matched and linked: the code of the files objects.py marks Matching, built from source into the
-  // byte-identical executable (objdiff's complete_code), and how many of the files that is
+  // matching: every function at 100 %, linked or not (the report's totals; the page's own counts without them)
   const rt = META.report_totals || {};
+  const mf = rt.matched_functions != null && rt.total_functions ? [rt.matched_functions, rt.total_functions] :
+    [TOT.n[0] + TOT.n[1], TOT.fn];
+  const mb = rt.matched_code != null && rt.total_code ? [rt.matched_code, rt.total_code] :
+    [TOT.b[0] + TOT.b[1], TOT.bytes];
+  const mt = $('h-match');
+  mt.textContent = 'matching: ' + pct(mf[0], mf[1]) + ' of functions · ' + pct(mb[0], mb[1]) + ' of code';
+  mt.title = 'share of functions and code bytes at 100 % (Matching and linked, or Matching, not linked yet): ' +
+    fmt(mf[0]) + ' of ' + fmt(mf[1]) + ' functions, ' + fmtBytes(mb[0]) + ' of ' + fmtBytes(mb[1]) + ' code';
+
+  const pf = TOT.n[0] + TOT.n[1] + TOT.n[2];
+  const pb = TOT.b[0] + TOT.b[1] + TOT.b[2];
+  const port = $('h-port');
+  port.textContent = 'port-ready: ' + pct(pf, TOT.fn) + ' of functions · ' + pct(pb, TOT.bytes) + ' of code';
+  port.title = 'share of functions and code bytes that are Matching (linked or not) or Equivalent';
+
+  // how many of the files objects.py lists are linked from source (objects.py: Matching)
   const files = U.filter(u => u.objects);
   const linkedFiles = files.filter(u => u.objects === 'Matching').length;
   const lk = $('h-linked');
-  if (rt.complete_code != null && rt.total_code) {
-    lk.textContent = 'matched and linked: ' + fmtBytes(rt.complete_code) + ' of code (' + pct(rt.complete_code, rt.total_code) +
-      ') · ' + fmt(linkedFiles) + ' of ' + fmt(files.length) + ' files';
-    lk.title = 'code of the files marked Matching in objects.py: built from source and linked into the ' +
-      'byte-identical executable';
-    lk.hidden = false;
-  } else {
-    lk.hidden = true;
-  }
-
-  const pf = TOT.n[0] + TOT.n[1];
-  const pb = TOT.b[0] + TOT.b[1];
-  const port = $('h-port');
-  port.textContent = 'port-ready: ' + pct(pf, TOT.fn) + ' of functions · ' + pct(pb, TOT.bytes) + ' of code';
-  port.title = 'share of functions and code bytes that are Matching or Equivalent';
+  lk.textContent = fmt(linkedFiles) + ' of ' + fmt(files.length) + ' files linked';
+  lk.title = 'files marked Matching in objects.py: built from source and linked into the byte-identical executable';
+  lk.hidden = files.length === 0;
 
   const built = $('h-built');
   built.replaceChildren();
@@ -1116,7 +1168,7 @@ function buildSidebar() {
 
   // STATUS
   let body = section(root, 'Status');
-  for (let c = 0; c < 4; c++) addFacet(body, 'st', c, STATUSES[c].name, 'var(--' + STATUSES[c].key + ')');
+  for (let c = 0; c < NST; c++) addFacet(body, 'st', c, STATUSES[c].name, 'var(--' + STATUSES[c].key + ')');
 
   // count by
   body = section(root, 'Count by');
@@ -1337,7 +1389,7 @@ function issMatch(f) {
   return false;
 }
 function newCounts() {
-  return {st: [0, 0, 0, 0], cat: new Map(), iss: new Map(), obj: new Map(), dir: new Map(), size: [0, 0, 0, 0, 0], chg: 0, inl: 0};
+  return {st: [0, 0, 0, 0, 0], cat: new Map(), iss: new Map(), obj: new Map(), dir: new Map(), size: [0, 0, 0, 0, 0], chg: 0, inl: 0};
 }
 function countFor(c, f, w, mask) {
   if (mask & FB.status) c.st[f.sc] += w;
@@ -1402,7 +1454,7 @@ function buildGroups() {
     const key = orig ? f.okey : f.bkey;
     let g = map.get(key);
     if (!g) {
-      g = {key: key, u: f.u, orig: orig ? f.oname : null, fns: [], n: [0, 0, 0, 0], b: [0, 0, 0, 0],
+      g = {key: key, u: f.u, orig: orig ? f.oname : null, fns: [], n: [0, 0, 0, 0, 0], b: [0, 0, 0, 0, 0],
         chg: 0, since: '', fstat: fileStatus(fstat.get(key)), w: null, tot: 0, rem: 0, sortKey: '',
         ow: [0, 0], iw: [0, 0]};   // [all, not matching] of the own functions and of the inline copies
       g.sortKey = f.u.path + '\u0001' + (g.orig || '');
@@ -1414,7 +1466,7 @@ function buildGroups() {
     g.b[f.sc] += f.size;
     const part = f.inline ? g.iw : g.ow;
     part[0] += byFn ? 1 : f.size;
-    if (f.sc !== 0) part[1] += byFn ? 1 : f.size;
+    if (f.sc > 1) part[1] += byFn ? 1 : f.size;
     if (f.changed) {
       g.chg++;
       if (f.since > g.since) g.since = f.since;
@@ -1422,8 +1474,8 @@ function buildGroups() {
   }
   for (const g of groups) {
     g.w = byFn ? g.n : g.b;
-    g.tot = g.w[0] + g.w[1] + g.w[2] + g.w[3];
-    g.rem = g.tot - g.w[0];
+    g.tot = g.w[0] + g.w[1] + g.w[2] + g.w[3] + g.w[4];
+    g.rem = g.tot - g.w[0] - g.w[1];
   }
   return groups;
 }
@@ -1435,17 +1487,17 @@ function sortGroups(groups) {
       break;
     case 'closest':
       cmp = (a, b) => {
-        const ar = a.n[1] + a.n[2] + a.n[3], br = b.n[1] + b.n[2] + b.n[3];
+        const ar = a.n[2] + a.n[3] + a.n[4], br = b.n[2] + b.n[3] + b.n[4];
         if ((ar > 0) !== (br > 0)) return ar > 0 ? -1 : 1;
         if (ar !== br) return ar - br;
-        const ap = a.tot ? a.w[0] / a.tot : 0, bp = b.tot ? b.w[0] / b.tot : 0;
+        const ap = a.tot ? (a.w[0] + a.w[1]) / a.tot : 0, bp = b.tot ? (b.w[0] + b.w[1]) / b.tot : 0;
         if (ap !== bp) return bp - ap;
         if (a.fstat !== b.fstat) return a.fstat - b.fstat;
         return cmpStr(a.sortKey, b.sortKey);
       };
       break;
     case 'notstarted':
-      cmp = (a, b) => (b.w[3] - a.w[3]) || cmpStr(a.sortKey, b.sortKey);
+      cmp = (a, b) => (b.w[4] - a.w[4]) || cmpStr(a.sortKey, b.sortKey);
       break;
     case 'recent':
       cmp = (a, b) => ((b.chg > 0) - (a.chg > 0)) || cmpStr(b.since, a.since) || (b.chg - a.chg) || cmpStr(a.sortKey, b.sortKey);
@@ -1460,14 +1512,14 @@ function flatComparator() {
     case 'path':
       return (a, b) => cmpStr(a.u.path, b.u.path) || (a.addr - b.addr);
     case 'closest':
-      return (a, b) => ((a.sc === 0) - (b.sc === 0)) ||
+      return (a, b) => ((a.sc <= 1) - (b.sc <= 1)) ||
         ((b.score == null ? -1 : b.score) - (a.score == null ? -1 : a.score)) || (a.size - b.size) || (a.addr - b.addr);
     case 'notstarted':
-      return (a, b) => ((b.sc === 3) - (a.sc === 3)) || (b.size - a.size) || (a.addr - b.addr);
+      return (a, b) => ((b.sc === 4) - (a.sc === 4)) || (b.size - a.size) || (a.addr - b.addr);
     case 'recent':
       return (a, b) => (b.changed - a.changed) || cmpStr(b.since, a.since) || (b.size - a.size) || (a.addr - b.addr);
     default:
-      return (a, b) => ((a.sc === 0) - (b.sc === 0)) || (b.size - a.size) || (a.addr - b.addr);
+      return (a, b) => ((a.sc <= 1) - (b.sc <= 1)) || (b.size - a.size) || (a.addr - b.addr);
   }
 }
 
@@ -1790,7 +1842,7 @@ function fnRow(f, flat) {
   const nums = el('div', 'nums');
   nums.append(el('span', 'addr', hex8(f.addr)));
   nums.append(el('span', 'size', fmt(f.size) + ' B'));
-  const sc = el('span', 'score' + (f.sc === 0 ? ' full' : (f.score == null ? ' none' : '')),
+  const sc = el('span', 'score' + (f.sc <= 1 ? ' full' : (f.score == null ? ' none' : '')),
     f.score == null ? '—' : f.score.toFixed(2) + '%');
   if (f.score == null) sc.title = noScoreTip(f.pass);
   nums.append(sc);
